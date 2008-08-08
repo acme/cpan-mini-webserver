@@ -6,6 +6,7 @@ Revision history for Perl module CPAN::Mini::Webserver:
      - require HTTP::Server::Simple 0.34 (spotted by ranguard)
      - added favicon
      - hide POD errors
+     - add an opensearch plugin (such as Firefox's search bar)
 
 0.33 Fri Aug  8 08:00:12 BST 2008
      - require at least CPAN::Mini 0.565 as we need CPAN::Mini::App
