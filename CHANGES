@@ -3,6 +3,7 @@ Revision history for Perl module CPAN::Mini::Webserver:
 0.34
      - mention the subversion repository and the mailing list
      - require Template::Declare 0.29 (spotted by evdb)
+     - require HTTP::Server::Simple 0.34 (spotted by ranguard)
 
 0.33 Fri Aug  8 08:00:12 BST 2008
      - require at least CPAN::Mini 0.565 as we need CPAN::Mini::App

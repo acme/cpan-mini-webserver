@@ -11,7 +11,7 @@ WriteMakefile(
         'App::Cache'                => '0',
         'Convert::UU'               => '0',
         'CPAN::Mini'                => '0.565',
-        'HTTP::Server::Simple::CGI' => '0',
+        'HTTP::Server::Simple::CGI' => '0.34',
         'IO::Capture::Stdout'       => '0',
         'Moose'                     => '0',
         'Parse::CPAN::Authors'      => '0',
