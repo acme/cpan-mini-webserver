@@ -1,0 +1,37 @@
+#!perl
+use strict;
+use warnings;
+use lib 'lib';
+use CPAN::Mini::Webserver;
+
+my $server = CPAN::Mini::Webserver->new(8080);
+$server->run();
+
+__END__
+
+=head1 NAME
+
+minicpan_webserver - Search and browse Mini CPAN
+
+=head1 SYNOPSIS
+
+  % minicpan_webserver
+  
+=head1 DESCRIPTION
+
+This program provides a web server that allows
+you to search and browse Mini CPAN. First you must install
+CPAN::Mini and create a local copy of CPAN using minicpan.
+Then you may run minicpan_webserver and search and 
+browse Mini CPAN at http://localhost:8080/.
+
+=head1 AUTHOR
+
+Leon Brocard <acme@astray.com>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2008, Leon Brocard.
+
+This module is free software; you can redistribute it or 
+modify it under the same terms as Perl itself.

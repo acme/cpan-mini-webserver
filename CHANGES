@@ -1,0 +1,10 @@
+Revision history for Perl module CPAN::Mini::Webserver:
+
+0.33 Fri Aug  8 08:00:12 BST 2008
+     - require at least CPAN::Mini 0.565 as we need CPAN::Mini::App
+       (noticed by bricas)
+     - glob the local directory name (like CPAN::Mini does) to make 
+       ~/my-little-cpan work (patch by Andy Armstrong) 
+
+0.32 Sat Aug  2 19:27:12 BST 2008
+     - initial release
