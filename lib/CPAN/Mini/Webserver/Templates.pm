@@ -764,12 +764,12 @@ end
 template 'images_favicon' => sub {
     my $self      = shift;
     my $uuencoded = q|begin 644 favicon.png
-MB5!.1PT*&@H````-24A$4@```!`````0!`,```#MW>)2`````7-21T(`KLX<
-MZ0```#!03%1%!P<''1T=*"@H.SL[2TM+65E9965E>GIZCHZ.FYN;JZNKO;V]
-MR\O+V=G9[.SL____4)LDI@```'=)1$%4"-=C^`\%#$#\SQ;*>*;>#V;\FZ1V
-M'\QX8]0X'\3X=\PX21/$^!/$[B*X'\BXJB!R1T'W/\._0*:X_YN8WS,\%5#_
-M__^7@!]#(!-0R_^%;`P-:B7&+J[!X@Q_#!B`0/(^P_\`$(,-J/UZ68B1H!_8
-84C```)$<4.!O-G[F`````$E%3D2N0F""
+MB5!.1PT*&@H````-24A$4@```!`````0"`,````H+0]3`````7-21T(`KLX<
+MZ0```#-03%1%.```!0@$%A@5'A\=(2(@)B@F+"TK,3,P.STZ1DA%3$U+6%I7
+M96=D>'EWA(:#GJ"=S,[+:G'V<@````%T4DY3`$#FV&8```!L241!5!C3=8]9
+M#L(P#`6]KRGM_4\+A1`5!._'&GLLV0!_<L17HW7K*^]NXW-!;G(QCN$QU')Q
+M&VZ>S(L5Q0$4=;*@/FU!.4LQ6KU<QH<8M!B*,*!1*\/,(S*=SAGA.SSFYLJ\
+=Q*6[PH3\U]MW>U,"XTMI(T<`````245.1*Y"8((`
 `
 end
 |;
