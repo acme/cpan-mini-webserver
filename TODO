@@ -9,6 +9,8 @@ Have a generic error page, and push all errors to it
 Fix links in POD to go back to us
 Fix package links to go to a best-guess filename
 Fix tests to fail unless there is a mirror
+Write OpenSearch plugin:
+http://developer.mozilla.org/en/docs/Creating_OpenSearch_plugins_for_Firefox
 
 Maybe use LWP::Online and gravatar? 
 Improve searching - maybe use KinoSearch?
