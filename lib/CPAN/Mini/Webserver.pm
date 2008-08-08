@@ -23,6 +23,8 @@ has 'filename'            => ( is => 'rw' );
 
 our $VERSION = '0.33';
 
+# this is a hook that HTTP::Server::Simple calls after setting up the
+# listening socket. we use it load the indexes
 sub after_setup_listener {
     my $self      = shift;
     my %config    = CPAN::Mini->read_config;
