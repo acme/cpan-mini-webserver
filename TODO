@@ -3,12 +3,12 @@ Things that we want to do
 * Make sure all patches/commits are reformatted using perltidy and
   the .perltidyrc in this directory
 
-
+Pick new default port, 8080 is too common
 Pass different port number in ARGV
-Pick new port
-Error page
-LWP::Online and gravatar 
-KinoSearch?
+Have a generic error page, and push all errors to it
 Fix links in POD to go back to us
-Fix package links to go to the filename
+Fix package links to go to a best-guess filename
 Fix tests to fail unless there is a mirror
+
+Maybe use LWP::Online and gravatar? 
+Improve searching - maybe use KinoSearch?
