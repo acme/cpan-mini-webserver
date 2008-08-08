@@ -3,6 +3,7 @@ Things that we want to do
 * Make sure all patches/commits are reformatted using perltidy and
   the .perltidyrc in this directory
 
+Hide POD errors
 Pick new default port, 8080 is too common
 Pass different port number in ARGV
 Have a generic error page, and push all errors to it
