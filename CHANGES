@@ -7,6 +7,7 @@ Revision history for Perl module CPAN::Mini::Webserver:
      - added favicon
      - hide POD errors
      - add an opensearch plugin (such as Firefox's search bar)
+     - skip tests unless there is an existing mirror
 
 0.33 Fri Aug  8 08:00:12 BST 2008
      - require at least CPAN::Mini 0.565 as we need CPAN::Mini::App

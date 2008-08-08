@@ -3,8 +3,16 @@ use strict;
 use warnings;
 use CGI;
 use IO::Capture::Stdout;
-use Test::More tests => 19;
-use_ok 'CPAN::Mini::Webserver';
+use Test::More;
+eval 'use CPAN::Mini::Webserver;
+my $server = CPAN::Mini::Webserver->new();
+$server->after_setup_listener;
+';
+if ( $@ =~ /Please set up minicpan/ ) {
+    plan skip_all => "CPAN::Mini mirror must be installed for testing: $@";
+} else {
+    plan tests => 18;
+}
 
 my $capture = IO::Capture::Stdout->new();
 
