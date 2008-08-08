@@ -382,6 +382,14 @@ CPAN::Mini and create a local copy of CPAN using minicpan.
 Then you may run minicpan_webserver and search and 
 browse Mini CPAN at http://localhost:8080/.
 
+You may access the Subversion repository at:
+
+  http://code.google.com/p/cpan-mini-webserver/
+
+And may join the mailing list at:
+
+  http://groups.google.com/group/cpan-mini-webserver
+
 =head1 AUTHOR
 
 Leon Brocard <acme@astray.com>
