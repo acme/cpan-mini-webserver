@@ -83,9 +83,10 @@ private template 'package_link' => sub {
     my ( $self, $package ) = @_;
     my $distribution = $package->distribution;
     a {
-        attr {    href => '/~'
+        attr {    href => '/package/'
                 . lc( $distribution->cpanid ) . '/'
-                . $distribution->distvname
+                . $distribution->distvname . '/'
+                . $package->package
                 . '/' };
         $package->package;
     };

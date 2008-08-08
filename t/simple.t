@@ -11,7 +11,7 @@ $server->after_setup_listener;
 if ( $@ =~ /Please set up minicpan/ ) {
     plan skip_all => "CPAN::Mini mirror must be installed for testing: $@";
 } else {
-    plan tests => 18;
+    plan tests => 21;
 }
 
 my $capture = IO::Capture::Stdout->new();
@@ -73,6 +73,15 @@ like( $html,
     qr{Leon Brocard &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/lib/Acme/Buffy.pm}
 );
 like( $html, qr{An encoding scheme for Buffy the Vampire Slayer fans} );
+
+# Show package Acme::Buffy.pm
+$cgi->path_info('/package/lbrocard/Acme-Buffy-1.5/Acme::Buffy/');
+$html = make_request();
+like( $html, qr{HTTP/1.0 302 OK} );
+like( $html, qr{Status: 302 Found} );
+like( $html,
+    qr{Location: http://localhost:8080/~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm}
+);
 
 sub make_request {
     $capture->start;

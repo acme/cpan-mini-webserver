@@ -52,6 +52,7 @@ sub handle_request {
     my ( $self, $cgi ) = @_;
     $self->cgi($cgi);
     my $path = $cgi->path_info();
+
     my ( $raw, $pauseid, $distvname, $filename );
     if ( $path =~ m{^/~} ) {
         ( undef, $pauseid, $distvname, $filename ) = split( '/', $path, 4 );
@@ -80,6 +81,8 @@ sub handle_request {
         $self->distribution_page();
     } elsif ($pauseid) {
         $self->author_page();
+    } elsif ( $path =~ m{^/package/} ) {
+        $self->package_page();
     } elsif ( $path eq '/static/css/screen.css' ) {
         $self->css_screen_page();
     } elsif ( $path eq '/static/css/print.css' ) {
@@ -181,19 +184,7 @@ sub distribution_page {
         = grep { $_->cpanid eq uc $pauseid && $_->distvname eq $distvname }
         $self->parse_cpan_packages->distributions;
 
-    my $file
-        = file( $self->directory, 'authors', 'id', $distribution->prefix );
-
-    my @filenames;
-    if ( $file =~ /\.tar\.gz$/ ) {
-
-        # warn "tar fzt $file";
-        @filenames = sort `tar fzt $file`;
-        chomp @filenames;
-        @filenames = grep { $_ !~ m{/$} } @filenames;
-    } else {
-        die "Unknown distribution format $file";
-    }
+    my @filenames = $self->list_files($distribution);
 
     print "HTTP/1.0 200 OK\r\n";
     print $cgi->header;
@@ -327,11 +318,53 @@ sub raw_page {
             filename     => $filename,
             pauseid      => $pauseid,
             distvname    => $distvname,
-
-            contents => $contents,
-            html     => $html,
+            contents     => $contents,
+            html         => $html,
         }
     );
+}
+
+sub package_page {
+    my $self = shift;
+    my $cgi  = $self->cgi;
+    my $path = $cgi->path_info();
+    my ( $pauseid, $distvname, $package )
+        = $path =~ m{^/package/(.+?)/(.+?)/(.+?)/$};
+
+    my ($p) = grep {
+               $_->package                 eq $package
+            && $_->distribution->distvname eq $distvname
+            && $_->distribution->cpanid    eq uc($pauseid)
+    } $self->parse_cpan_packages->packages;
+    my $distribution = $p->distribution;
+    my @filenames    = $self->list_files($distribution);
+    my $postfix      = $package;
+    $postfix =~ s{^.+::}{}g;
+    $postfix .= '.pm';
+    my ($filename)
+        = grep { $_ =~ /$postfix$/ }
+        sort { length($a) <=> length($b) } @filenames;
+    my $url = "http://localhost:8080/~$pauseid/$distvname/$filename";
+
+    print "HTTP/1.0 302 OK\r\n";
+    print $cgi->redirect($url);
+}
+
+sub list_files {
+    my ( $self, $distribution ) = @_;
+    my $file
+        = file( $self->directory, 'authors', 'id', $distribution->prefix );
+    my @filenames;
+
+    if ( $file =~ /\.tar\.gz$/ ) {
+
+        # warn "tar fzt $file";
+        @filenames = sort `tar fzt $file`;
+        chomp @filenames;
+        @filenames = grep { $_ !~ m{/$} } @filenames;
+    } else {
+        die "Unknown distribution format $file";
+    }
 }
 
 sub css_screen_page {
