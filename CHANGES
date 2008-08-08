@@ -1,5 +1,8 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
+0.34
+     - mention the subversion repository and the mailing list
+
 0.33 Fri Aug  8 08:00:12 BST 2008
      - require at least CPAN::Mini 0.565 as we need CPAN::Mini::App
        (noticed by bricas)
