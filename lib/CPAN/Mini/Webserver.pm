@@ -21,7 +21,7 @@ has 'pauseid'             => ( is => 'rw' );
 has 'distvname'           => ( is => 'rw' );
 has 'filename'            => ( is => 'rw' );
 
-our $VERSION = '0.33';
+our $VERSION = '0.34';
 
 # this is a hook that HTTP::Server::Simple calls after setting up the
 # listening socket. we use it load the indexes
