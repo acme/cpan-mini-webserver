@@ -88,6 +88,8 @@ sub handle_request {
         $self->css_ie_page();
     } elsif ( $path eq '/static/images/logo.png' ) {
         $self->images_logo_page();
+    } elsif ( $path eq '/static/images/favicon.png' ) {
+        $self->images_favicon_page();
     } else {
         print "HTTP/1.0 404 Not found\r\n";
         print $cgi->header,
@@ -362,6 +364,15 @@ sub images_logo_page {
     print "HTTP/1.0 200 OK\r\n";
     print $cgi->header( -type => 'image/png', -expires => '+1d' );
     print Template::Declare->show('images_logo');
+}
+
+sub images_favicon_page {
+    my $self = shift;
+    my $cgi  = $self->cgi;
+
+    print "HTTP/1.0 200 OK\r\n";
+    print $cgi->header( -type => 'image/png', -expires => '+1d' );
+    print Template::Declare->show('images_favicon');
 }
 
 1;
