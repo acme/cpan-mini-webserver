@@ -1,3 +1,9 @@
+Things that we want to do
+
+* Make sure all patches/commits are reformatted using perltidy and
+  the .perltidyrc in this directory
+
+
 Pass different port number in ARGV
 Pick new port
 Error page
@@ -5,5 +11,4 @@ LWP::Online and gravatar
 KinoSearch?
 Fix links in POD to go back to us
 Fix package links to go to the filename
-Add perltidyrc
 Fix tests to fail unless there is a mirror

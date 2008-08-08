@@ -1,0 +1,15 @@
+-l=78 # max line width is 78 cols
+-i=4 # indent level 4 cols
+-ci=4 # continuation indent 4 cols
+#-st # output to STDOUT
+-se # errors to STDERR
+-vt=2 # maximal vertical tightness
+-cti=0 # no extra indentation for closing brackets
+-pt=1 # medium parenthesis tightness
+-bt=1 # medium brace tightness
+-sbt=1 # medium square bracket tightness
+-bbt=1 # medium block brace tightness
+-nsfs # no space before semicolons
+-nolq # don't outdent long quoted strings
+-wbb="% + - * / x != == >= <= =~ !~ < > | & >= < = **= += *= &= <<= &&= -= /= |= >>= ||= .= %= ^= x=" # break before operators
+-ce # cuddled elses
