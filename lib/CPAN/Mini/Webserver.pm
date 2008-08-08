@@ -231,6 +231,8 @@ sub file_page {
 
     my $parser = Pod::Simple::HTML->new;
     $parser->index(0);
+    $parser->no_whining(1);
+    $parser->no_errata_section(1);
     $parser->output_string( \my $html );
     $parser->parse_string_document($contents);
     $html =~ s/^.*<!-- start doc -->//s;
