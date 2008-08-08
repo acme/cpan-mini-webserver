@@ -21,7 +21,7 @@ WriteMakefile(
         'Perl6::Say'                => '0',
         'PPI'                       => '0',
         'PPI::HTML'                 => '0',
-        'Template::Declare'         => '0',
+        'Template::Declare'         => '0.29',
         'Test::More'                => '0',
     },
     'EXE_FILES' => ['bin/minicpan_webserver'],
