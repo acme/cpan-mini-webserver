@@ -1,5 +1,9 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
+0.35
+     - remove failing pod.t test due to bugs in Pod::Simple
+       (spotted by RSAVAGE)
+
 0.34 Fri Aug  8 18:00:32 BST 2008
      - mention the subversion repository and the mailing list
      - require Template::Declare 0.29 (spotted by evdb)
