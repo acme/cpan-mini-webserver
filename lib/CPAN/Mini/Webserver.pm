@@ -214,7 +214,7 @@ sub file_page {
         = file( $self->directory, 'authors', 'id', $distribution->prefix );
 
     my $contents;
-    if ( $file =~ /\.tar\.gz$/ ) {
+    if ( $file =~ /\.(?:tar\.gz|tgz)$/ ) {
 
         # warn "tar fzxO $file $filename";
         $contents = `tar fzxO $file $filename`;
@@ -264,7 +264,7 @@ sub raw_page {
         = file( $self->directory, 'authors', 'id', $distribution->prefix );
 
     my $contents;
-    if ( $file =~ /\.tar\.gz$/ ) {
+    if ( $file =~ /\.(?:tar\.gz|tgz)$/ ) {
 
         # warn "tar fzxO $file $filename";
         $contents = `tar fzxO $file $filename`;
@@ -341,8 +341,7 @@ sub package_page {
     my $postfix      = $package;
     $postfix =~ s{^.+::}{}g;
     $postfix .= '.pm';
-    my ($filename)
-        = grep { $_ =~ /$postfix$/ }
+    my ($filename) = grep { $_ =~ /$postfix$/ }
         sort { length($a) <=> length($b) } @filenames;
     my $url = "http://localhost:8080/~$pauseid/$distvname/$filename";
 
@@ -356,7 +355,7 @@ sub list_files {
         = file( $self->directory, 'authors', 'id', $distribution->prefix );
     my @filenames;
 
-    if ( $file =~ /\.tar\.gz$/ ) {
+    if ( $file =~ /\.(?:tar\.gz|tgz)$/ ) {
 
         # warn "tar fzt $file";
         @filenames = sort `tar fzt $file`;

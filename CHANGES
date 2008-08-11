@@ -3,6 +3,7 @@ Revision history for Perl module CPAN::Mini::Webserver:
 0.35
      - remove failing pod.t test due to bugs in Pod::Simple
        (spotted by RSAVAGE)
+     - handle *.tgz as well as *.tar.gz (patch by RSAVAGE)
 
 0.34 Fri Aug  8 18:00:32 BST 2008
      - mention the subversion repository and the mailing list
