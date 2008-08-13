@@ -13,6 +13,8 @@ use Path::Class;
 use PPI;
 use PPI::HTML;
 use Template::Declare;
+use Term::ProgressBar;
+
 Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
 
 extends 'HTTP::Server::Simple::CGI';
@@ -80,13 +82,21 @@ sub after_setup_listener {
         stored     => 0,
     );
 
+    print "Indexing authors\n";
+    my $p = Term::ProgressBar->new({ count => scalar $parse_cpan_authors->authors });
+    my $i = 0;
     foreach my $author ( $parse_cpan_authors->authors ) {
         my $doc = $invindexer->new_doc;
         $doc->set_value( id   => $author->pauseid );
         $doc->set_value( type => 'a' );
         $doc->set_value( data => $author->pauseid . ' ' . $author->name );
         $invindexer->add_doc($doc);
+        $p->update( ++$i );
     }
+
+    print "Indexing distributions\n";
+    $p = Term::ProgressBar->new({ count => scalar $self->parse_cpan_packages->latest_distributions });
+    $i = 0;
     foreach
         my $distribution ( $self->parse_cpan_packages->latest_distributions )
     {
@@ -95,13 +105,19 @@ sub after_setup_listener {
         $doc->set_value( type => 'd' );
         $doc->set_value( data => $distribution->dist );
         $invindexer->add_doc($doc);
+        $p->update( ++$i );
     }
+
+    print "Indexing packages\n";
+    $p = Term::ProgressBar->new({ count => scalar $self->parse_cpan_packages->packages });
+    $i = 0;
     foreach my $package ( $self->parse_cpan_packages->packages ) {
         my $doc = $invindexer->new_doc;
         $doc->set_value( id   => $package->package );
         $doc->set_value( type => 'p' );
         $doc->set_value( data => $package->package );
         $invindexer->add_doc($doc);
+        $p->update( ++$i );
     }
     $invindexer->finish( optimize => 1 );
 }
