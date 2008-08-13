@@ -7,8 +7,8 @@ Pick new default port, 8080 is too common
 Pass different port number in ARGV
 Have a generic error page, and push all errors to it
 Fix links in POD to go back to us
-
+Only index with KinoSearch if minicpan has changed
 
 
 Maybe use LWP::Online and gravatar? 
-Improve searching - maybe use KinoSearch?
+

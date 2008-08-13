@@ -2,6 +2,9 @@ package CPAN::Mini::Webserver;
 use App::Cache;
 use CPAN::Mini::App;
 use CPAN::Mini::Webserver::Templates;
+use KinoSearch::Analysis::PolyAnalyzer;
+use KinoSearch::InvIndexer;
+use KinoSearch::Searcher;
 use Moose;
 use Parse::CPAN::Authors;
 use Parse::CPAN::Packages;
@@ -15,6 +18,7 @@ Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
 extends 'HTTP::Server::Simple::CGI';
 has 'cgi'                 => ( is => 'rw', isa => 'CGI' );
 has 'directory'           => ( is => 'rw', isa => 'Path::Class::Dir' );
+has 'scratch'             => ( is => 'rw', isa => 'Path::Class::Dir' );
 has 'parse_cpan_authors'  => ( is => 'rw', isa => 'Parse::CPAN::Authors' );
 has 'parse_cpan_packages' => ( is => 'rw', isa => 'Parse::CPAN::Packages' );
 has 'pauseid'             => ( is => 'rw' );
@@ -46,6 +50,60 @@ sub after_setup_listener {
 
     $self->parse_cpan_authors($parse_cpan_authors);
     $self->parse_cpan_packages($parse_cpan_packages);
+
+    my $scratch = dir( $cache->scratch );
+    $self->scratch($scratch);
+
+    my $analyzer
+        = KinoSearch::Analysis::PolyAnalyzer->new( language => 'en' );
+    my $invindexer = KinoSearch::InvIndexer->new(
+        invindex => $scratch,
+        create   => 1,
+        analyzer => $analyzer,
+    );
+    $invindexer->spec_field(
+        name       => 'id',
+        analyzed   => 0,
+        vectorized => 0,
+        stored     => 1,
+    );
+    $invindexer->spec_field(
+        name       => 'type',
+        analyzed   => 0,
+        vectorized => 0,
+        stored     => 1,
+    );
+    $invindexer->spec_field(
+        name       => 'data',
+        analyzed   => 1,
+        vectorized => 0,
+        stored     => 0,
+    );
+
+    foreach my $author ( $parse_cpan_authors->authors ) {
+        my $doc = $invindexer->new_doc;
+        $doc->set_value( id   => $author->pauseid );
+        $doc->set_value( type => 'a' );
+        $doc->set_value( data => $author->pauseid . ' ' . $author->name );
+        $invindexer->add_doc($doc);
+    }
+    foreach
+        my $distribution ( $self->parse_cpan_packages->latest_distributions )
+    {
+        my $doc = $invindexer->new_doc;
+        $doc->set_value( id   => $distribution->distvname );
+        $doc->set_value( type => 'd' );
+        $doc->set_value( data => $distribution->dist );
+        $invindexer->add_doc($doc);
+    }
+    foreach my $package ( $self->parse_cpan_packages->packages ) {
+        my $doc = $invindexer->new_doc;
+        $doc->set_value( id   => $package->package );
+        $doc->set_value( type => 'p' );
+        $doc->set_value( data => $package->package );
+        $invindexer->add_doc($doc);
+    }
+    $invindexer->finish( optimize => 1 );
 }
 
 sub handle_request {
@@ -119,26 +177,62 @@ sub search_page {
     my $cgi  = $self->cgi;
     my $q    = $cgi->param('q');
 
-    my @authors = sort { $a->name cmp $b->name }
-        grep { $_->name =~ /$q/i || $_->pauseid =~ /$q/i }
-        $self->parse_cpan_authors->authors;
-    my @distributions = sort {
+    my ( @authors, @distributions, @packages );
+    my $analyzer
+        = KinoSearch::Analysis::PolyAnalyzer->new( language => 'en' );
+
+    my $searcher = KinoSearch::Searcher->new(
+        invindex => $self->scratch,
+        analyzer => $analyzer,
+    );
+    my $parse_cpan_authors   = $self->parse_cpan_authors;
+    my $parse_cpan_packages  = $self->parse_cpan_packages;
+    my @latest_distributions = $parse_cpan_packages->latest_distributions;
+    my $distvname_to_distribution;
+
+    foreach my $distribution (@latest_distributions) {
+        $distvname_to_distribution->{ $distribution->distvname }
+            = $distribution;
+    }
+    my @all_packages = $parse_cpan_packages->packages;
+    my $package_to_package;
+    foreach my $package (@all_packages) {
+        $package_to_package->{ $package->package } = $package;
+    }
+
+    my $query_parser = KinoSearch::QueryParser::QueryParser->new(
+        analyzer       => $analyzer,
+        fields         => ['data'],
+        default_boolop => 'AND',
+    );
+    my $hits = $searcher->search( query => $query_parser->parse($q) );
+    while ( my $hit = $hits->fetch_hit_hashref ) {
+        my $id   = $hit->{id};
+        my $type = $hit->{type};
+        if ( $type eq 'a' ) {
+            push @authors, $parse_cpan_authors->author($id);
+        } elsif ( $type eq 'd' ) {
+            push @distributions, $distvname_to_distribution->{$id};
+        } elsif ( $type eq 'p' ) {
+            push @packages, $package_to_package->{$id};
+        }
+    }
+
+    @authors = sort { $a->name cmp $b->name } @authors;
+
+    @distributions = sort {
         my @acount = $a->dist =~ /-/g;
         my @bcount = $b->dist =~ /-/g;
         scalar(@acount) <=> scalar(@bcount)
             || $a->dist cmp $b->dist
-        }
-        grep {
-        $_->dist && $_->dist =~ /$q/i
-        } $self->parse_cpan_packages->latest_distributions;
-    my @packages = sort {
+    } @distributions;
+
+    @packages = sort {
         my @acount = $a->package =~ /::/g;
         my @bcount = $b->package =~ /::/g;
         scalar(@acount) <=> scalar(@bcount)
             || $a->package cmp $b->package
-        } grep {
-        $_->package =~ /$q/i
-        } $self->parse_cpan_packages->packages;
+    } @packages;
 
     print "HTTP/1.0 200 OK\r\n";
     print $cgi->header;
