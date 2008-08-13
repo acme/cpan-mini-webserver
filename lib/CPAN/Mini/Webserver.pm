@@ -139,6 +139,8 @@ sub handle_request {
         $self->distribution_page();
     } elsif ($pauseid) {
         $self->author_page();
+    } elsif ( $path =~ m{^/perldoc} ) {
+        $self->pod_page();
     } elsif ( $path =~ m{^/package/} ) {
         $self->package_page();
     } elsif ( $path eq '/static/css/screen.css' ) {
@@ -293,6 +295,21 @@ sub distribution_page {
     );
 }
 
+sub pod_page {
+    my $self      = shift;
+    my $cgi       = $self->cgi;
+    my ($pkgname) = $cgi->keywords;
+
+    my $m = $self->parse_cpan_packages->package($pkgname);
+    my $d = $m->distribution;
+
+    my ( $pauseid, $distvname ) = ( $d->cpanid, $d->distvname );
+    my $url = "http://localhost:8080/package/$pauseid/$distvname/$pkgname/";
+
+    print "HTTP/1.0 302 OK\r\n";
+    print $cgi->redirect($url);
+}
+
 sub file_page {
     my $self      = shift;
     my $cgi       = $self->cgi;
@@ -317,6 +334,7 @@ sub file_page {
     }
 
     my $parser = Pod::Simple::HTML->new;
+    $parser->perldoc_url_prefix('http://localhost:8080/perldoc?');
     $parser->index(0);
     $parser->no_whining(1);
     $parser->no_errata_section(1);
@@ -397,7 +415,7 @@ sub raw_page {
         # link module names to search.cpan.org
         @lines = map {
             $_
-                =~ s{<span class="word">([^<]+?::[^<]+?)</span>}{<span class="word"><a href="http://search.cpan.org/perldoc?$1">$1</a></span>};
+                =~ s{<span class="word">([^<]+?::[^<]+?)</span>}{<span class="word"><a href="http://localhost:8080/perldoc?$1">$1</a></span>};
             $_;
         } @lines;
         $html = join '', @lines;

@@ -3,6 +3,9 @@ Revision history for Perl module CPAN::Mini::Webserver:
 0.36 
      - use KinoSearch for searching, you can now search for
        "buffy -test" and "cpan webservers"
+     - make links to modules in the pod and source point back
+       to minicpan_webserver instead of to search.cpan.org
+       (patch by MARTIJN)
 
 0.35 Tue Aug 12 07:30:28 BST 2008
      - remove failing pod.t test due to bugs in Pod::Simple
