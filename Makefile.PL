@@ -13,6 +13,7 @@ WriteMakefile(
         'CPAN::Mini'                => '0.565',
         'HTTP::Server::Simple::CGI' => '0.34',
         'IO::Capture::Stdout'       => '0',
+        'KinoSearch'                => '0',
         'Moose'                     => '0',
         'Parse::CPAN::Authors'      => '0',
         'Parse::CPAN::Packages'     => '0',
