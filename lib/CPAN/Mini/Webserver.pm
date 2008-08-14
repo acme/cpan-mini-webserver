@@ -44,6 +44,29 @@ sub get_file_from_tarball {
     return $contents;
 }
 
+sub checksum_data_for_author {
+    my ( $self, $pauseid ) = @_;
+
+    my $file = file(
+        $self->directory, 'authors', 'id',
+        substr( $pauseid, 0, 1 ),
+        substr( $pauseid, 0, 2 ),
+        $pauseid, 'CHECKSUMS',
+    );
+
+    my ( $content, $cksum );
+    {
+        local $/;
+        open my $fh, "$file" or die $!;
+        $content = <$fh>;
+        close $fh;
+    }
+
+    eval $content;
+
+    return $cksum;
+}
+
 # this is a hook that HTTP::Server::Simple calls after setting up the
 # listening socket. we use it load the indexes
 sub after_setup_listener {
@@ -200,6 +223,14 @@ sub author_page {
         $self->parse_cpan_packages->distributions;
     my $author = $self->parse_cpan_authors->author( uc $pauseid );
 
+    my $cksum = $self->checksum_data_for_author( uc $pauseid );
+    my %dates;
+    if ( not $@ and defined $cksum ) {
+        foreach my $dist (@distributions) {
+            $dates{ $dist->distvname } = $cksum->{ $dist->filename }->{mtime};
+        }
+    }
+
     print "HTTP/1.0 200 OK\r\n";
     print $cgi->header;
     print Template::Declare->show(
@@ -207,6 +238,7 @@ sub author_page {
         {   author        => $author,
             pauseid       => $pauseid,
             distributions => \@distributions,
+            dates         => \%dates,
         }
     );
 }
@@ -228,6 +260,10 @@ sub distribution_page {
     if ( not $@ ) {
         $meta = $yaml[0];
     }
+
+    my $cksum_data = $self->checksum_data_for_author( uc $pauseid );
+    $meta->{'release date'}
+        = $cksum_data->{ $distribution->filename }->{mtime};
 
     my @filenames = $self->list_files($distribution);
 

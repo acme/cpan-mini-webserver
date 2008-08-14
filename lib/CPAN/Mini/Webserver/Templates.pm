@@ -227,6 +227,7 @@ template 'author' => sub {
     my $pauseid       = $arguments->{pauseid};
     my $distvname     = $arguments->{distvname};
     my @distributions = @{ $arguments->{distributions} };
+    my $dates         = $arguments->{dates};
 
     html {
         show( 'header', $author->name );
@@ -243,6 +244,9 @@ template 'author' => sub {
                             cell {
                                 show( 'distribution_link', $distribution );
 
+                            };
+                            cell {
+                                outs $dates->{ $distribution->distvname };
                             };
                         };
                     }
@@ -296,26 +300,22 @@ private template 'metadata' => sub {
     div {
         attr { class => 'metadata' };
         dl {
-            if ( $meta->{abstract} ) {
-                dt {'Abstract'};
-                dd { $meta->{abstract} };
+            foreach my $key ( qw(abstract license), 'release date' ) {
+                if ( defined $meta->{$key} ) {
+                    dt { ucfirst $key; };
+                    dd { $meta->{$key} };
+                }
+                foreach my $datum ( keys %{ $meta->{resources} } ) {
+                    dt { ucfirst $datum; }
+                    dd {
+                        a {
+                            attr { href => $meta->{resources}->{$datum}; };
+                            $meta->{resources}->{$datum};
+                        }
+                    };
+                }
             }
-            if ( $meta->{abstract} ) {
-                dt {'License'};
-                dd { $meta->{license} };
-            }
-
-            foreach my $datum ( keys %{ $meta->{resources} } ) {
-                dt { ucfirst $datum; }
-                dd {
-                    a {
-                        attr { href => $meta->{resources}->{$datum}; };
-                        $meta->{resources}->{$datum};
-                    }
-
-                };
-            }
-        };
+        }
     };
 };
 
