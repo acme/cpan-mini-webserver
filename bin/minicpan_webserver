@@ -3,8 +3,14 @@ use strict;
 use warnings;
 use lib 'lib';
 use CPAN::Mini::Webserver;
+use Getopt::Long;
 
-my $server = CPAN::Mini::Webserver->new(2963);
+my $port = 2963;
+GetOptions(
+    "port=i" => \$port,
+);
+
+my $server = CPAN::Mini::Webserver->new($port);
 $server->run();
 
 __END__
@@ -16,14 +22,15 @@ minicpan_webserver - Search and browse Mini CPAN
 =head1 SYNOPSIS
 
   % minicpan_webserver
-  
+  % minicpan_webserver --port 8090
+
 =head1 DESCRIPTION
 
-This program provides a web server that allows
-you to search and browse Mini CPAN. First you must install
-CPAN::Mini and create a local copy of CPAN using minicpan.
-Then you may run minicpan_webserver and search and 
-browse Mini CPAN at http://localhost:8080/.
+This program provides a web server that allows you to search and
+browse Mini CPAN. First you must install CPAN::Mini and create a local
+copy of CPAN using minicpan.  Then you may run minicpan_webserver and
+search and browse Mini CPAN at http://localhost:2963/. The listening
+port can be configured with C<--port> command line option.
 
 =head1 AUTHOR
 
