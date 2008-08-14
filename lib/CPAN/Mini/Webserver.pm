@@ -310,7 +310,7 @@ sub raw_page {
 
     my $html;
 
-    if ( $filename =~ /\.(pm|pl|PL)$/ ) {
+    if ( $filename =~ /\.(pm|pl|PL|t)$/ ) {
         my $document  = PPI::Document->new( \$contents );
         my $highlight = PPI::HTML->new( line_numbers => 0 );
         my $pretty    = $highlight->html($document);
