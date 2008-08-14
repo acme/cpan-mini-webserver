@@ -27,7 +27,7 @@ has 'distvname'           => ( is => 'rw' );
 has 'filename'            => ( is => 'rw' );
 has 'index' => ( is => 'rw', isa => 'CPAN::Mini::Webserver::Index' );
 
-our $VERSION = '0.35';
+our $VERSION = '0.36';
 
 # this is a hook that HTTP::Server::Simple calls after setting up the
 # listening socket. we use it load the indexes
