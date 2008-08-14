@@ -13,7 +13,7 @@ use Path::Class;
 use PPI;
 use PPI::HTML;
 use Template::Declare;
-use Term::ProgressBar;
+use Term::ProgressBar::Quiet;
 
 Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
 
@@ -82,8 +82,14 @@ sub after_setup_listener {
         stored     => 0,
     );
 
-    print "Indexing authors\n";
-    my $p = Term::ProgressBar->new({ count => scalar $parse_cpan_authors->authors });
+    my $p = Term::ProgressBar::Quiet->new(
+        {   name  => 'Indexing metadata',
+            count => $parse_cpan_authors->authors
+                + $self->parse_cpan_packages->latest_distributions
+                + $self->parse_cpan_packages->packages,
+            ETA => 'linear',
+        }
+    );
     my $i = 0;
     foreach my $author ( $parse_cpan_authors->authors ) {
         my $doc = $invindexer->new_doc;
@@ -94,9 +100,6 @@ sub after_setup_listener {
         $p->update( ++$i );
     }
 
-    print "Indexing distributions\n";
-    $p = Term::ProgressBar->new({ count => scalar $self->parse_cpan_packages->latest_distributions });
-    $i = 0;
     foreach
         my $distribution ( $self->parse_cpan_packages->latest_distributions )
     {
@@ -108,9 +111,6 @@ sub after_setup_listener {
         $p->update( ++$i );
     }
 
-    print "Indexing packages\n";
-    $p = Term::ProgressBar->new({ count => scalar $self->parse_cpan_packages->packages });
-    $i = 0;
     foreach my $package ( $self->parse_cpan_packages->packages ) {
         my $doc = $invindexer->new_doc;
         $doc->set_value( id   => $package->package );

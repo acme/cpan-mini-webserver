@@ -2,15 +2,16 @@ Revision history for Perl module CPAN::Mini::Webserver:
 
 0.36 
      - use KinoSearch for searching, you can now search for
-       "buffy -test" and "cpan webservers"
+       "buffy -test" and "cpan webservers" (with progress
+       bar thanks to miyagawa)
      - make links to modules in the pod and source point back
        to minicpan_webserver instead of to search.cpan.org
-       (patch by MARTIJN)
+       (patch by martijn)
 
 0.35 Tue Aug 12 07:30:28 BST 2008
      - remove failing pod.t test due to bugs in Pod::Simple
-       (spotted by RSAVAGE)
-     - handle *.tgz as well as *.tar.gz (patch by RSAVAGE)
+       (spotted by rsavage)
+     - handle *.tgz as well as *.tar.gz (patch by rsavage)
 
 0.34 Fri Aug  8 18:00:32 BST 2008
      - mention the subversion repository and the mailing list

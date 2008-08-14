@@ -23,7 +23,7 @@ WriteMakefile(
         'PPI'                       => '0',
         'PPI::HTML'                 => '0',
         'Template::Declare'         => '0.29',
-        'Term::ProgressBar'         => '0',
+        'Term::ProgressBar::Quiet'  => '0',
         'Test::More'                => '0',
     },
     'EXE_FILES' => ['bin/minicpan_webserver'],
