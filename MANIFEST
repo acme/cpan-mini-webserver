@@ -1,7 +1,7 @@
 bin/minicpan_webserver
 CHANGES
 lib/CPAN/Mini/Webserver.pm
-lib/CPAN/Mini/Webserver/Analyzer.pm
+lib/CPAN/Mini/Webserver/Index.pm
 lib/CPAN/Mini/Webserver/Templates.pm
 Makefile.PL
 MANIFEST			This list of files

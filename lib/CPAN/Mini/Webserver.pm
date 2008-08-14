@@ -1,11 +1,9 @@
 package CPAN::Mini::Webserver;
 use App::Cache;
 use CPAN::Mini::App;
-use CPAN::Mini::Webserver::Analyzer;
+use CPAN::Mini::Webserver::Index;
 use CPAN::Mini::Webserver::Templates;
-use KinoSearch::Analysis::PolyAnalyzer;
-use KinoSearch::InvIndexer;
-use KinoSearch::Searcher;
+use List::MoreUtils qw(uniq);
 use Moose;
 use Parse::CPAN::Authors;
 use Parse::CPAN::Packages;
@@ -27,6 +25,7 @@ has 'parse_cpan_packages' => ( is => 'rw', isa => 'Parse::CPAN::Packages' );
 has 'pauseid'             => ( is => 'rw' );
 has 'distvname'           => ( is => 'rw' );
 has 'filename'            => ( is => 'rw' );
+has 'index' => ( is => 'rw', isa => 'CPAN::Mini::Webserver::Index' );
 
 our $VERSION = '0.35';
 
@@ -57,70 +56,9 @@ sub after_setup_listener {
     my $scratch = dir( $cache->scratch );
     $self->scratch($scratch);
 
-    my $analyzer   = CPAN::Mini::Webserver::Analyzer->new;
-    my $invindexer = KinoSearch::InvIndexer->new(
-        invindex => $scratch,
-        create   => 1,
-        analyzer => $analyzer,
-    );
-    $invindexer->spec_field(
-        name       => 'id',
-        analyzed   => 0,
-        vectorized => 0,
-        stored     => 1,
-    );
-    $invindexer->spec_field(
-        name       => 'type',
-        analyzed   => 0,
-        vectorized => 0,
-        stored     => 1,
-    );
-    $invindexer->spec_field(
-        name       => 'data',
-        analyzed   => 1,
-        vectorized => 0,
-        stored     => 0,
-    );
-
-    my $p = Term::ProgressBar::Quiet->new(
-        {   name  => 'Indexing metadata',
-            count => $parse_cpan_authors->authors
-                + $self->parse_cpan_packages->latest_distributions
-                + $self->parse_cpan_packages->packages,
-            ETA => 'linear',
-        }
-    );
-    my $i = 0;
-
-    foreach my $author ( $parse_cpan_authors->authors ) {
-        my $doc = $invindexer->new_doc;
-        $doc->set_value( id   => $author->pauseid );
-        $doc->set_value( type => 'a' );
-        $doc->set_value( data => $author->pauseid . ' ' . $author->name );
-        $invindexer->add_doc($doc);
-        $p->update( ++$i );
-    }
-
-    foreach
-        my $distribution ( $self->parse_cpan_packages->latest_distributions )
-    {
-        my $doc = $invindexer->new_doc;
-        $doc->set_value( id   => $distribution->distvname );
-        $doc->set_value( type => 'd' );
-        $doc->set_value( data => $distribution->dist );
-        $invindexer->add_doc($doc);
-        $p->update( ++$i );
-    }
-
-    foreach my $package ( $self->parse_cpan_packages->packages ) {
-        my $doc = $invindexer->new_doc;
-        $doc->set_value( id   => $package->package );
-        $doc->set_value( type => 'p' );
-        $doc->set_value( data => $package->package );
-        $invindexer->add_doc($doc);
-        $p->update( ++$i );
-    }
-    $invindexer->finish( optimize => 1 );
+    my $index = CPAN::Mini::Webserver::Index->new;
+    $self->index($index);
+    $index->create_index($parse_cpan_authors, $parse_cpan_packages);
 }
 
 sub handle_request {
@@ -196,49 +134,15 @@ sub search_page {
     my $cgi  = $self->cgi;
     my $q    = $cgi->param('q');
 
-    my ( @authors, @distributions, @packages );
-    my $analyzer = CPAN::Mini::Webserver::Analyzer->new;
-
-    my $searcher = KinoSearch::Searcher->new(
-        invindex => $self->scratch,
-        analyzer => $analyzer,
-    );
-    my $parse_cpan_authors   = $self->parse_cpan_authors;
-    my $parse_cpan_packages  = $self->parse_cpan_packages;
-    my @latest_distributions = $parse_cpan_packages->latest_distributions;
-    my $distvname_to_distribution;
-
-    foreach my $distribution (@latest_distributions) {
-        $distvname_to_distribution->{ $distribution->distvname }
-            = $distribution;
-    }
-    my @all_packages = $parse_cpan_packages->packages;
-    my $package_to_package;
-    foreach my $package (@all_packages) {
-        $package_to_package->{ $package->package } = $package;
-    }
-
-    my $query_parser = KinoSearch::QueryParser::QueryParser->new(
-        analyzer       => $analyzer,
-        fields         => ['data'],
-        default_boolop => 'AND',
-    );
-
-    # because of field:value searches
-    my $hacked_q = $q;
-    $hacked_q =~ s/::/ /g;
-    my $hits = $searcher->search( query => $query_parser->parse($hacked_q) );
-    while ( my $hit = $hits->fetch_hit_hashref ) {
-        my $id   = $hit->{id};
-        my $type = $hit->{type};
-        if ( $type eq 'a' ) {
-            push @authors, $parse_cpan_authors->author($id);
-        } elsif ( $type eq 'd' ) {
-            push @distributions, $distvname_to_distribution->{$id};
-        } elsif ( $type eq 'p' ) {
-            push @packages, $package_to_package->{$id};
-        }
-    }
+    my $index   = $self->index;
+    my @results = $index->search($q);
+    my @authors
+        = uniq grep { ref($_) eq 'Parse::CPAN::Authors::Author' } @results;
+    my @distributions
+        = uniq grep { ref($_) eq 'Parse::CPAN::Packages::Distribution' }
+        @results;
+    my @packages
+        = uniq grep { ref($_) eq 'Parse::CPAN::Packages::Package' } @results;
 
     @authors = sort { $a->name cmp $b->name } @authors;
 
