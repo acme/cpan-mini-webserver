@@ -58,7 +58,7 @@ sub after_setup_listener {
 
     my $index = CPAN::Mini::Webserver::Index->new;
     $self->index($index);
-    $index->create_index($parse_cpan_authors, $parse_cpan_packages);
+    $index->create_index( $parse_cpan_authors, $parse_cpan_packages );
 }
 
 sub handle_request {
@@ -323,15 +323,8 @@ sub raw_page {
             "$split$_";
         } split /$split/, $pretty;
 
-        # right-justify the line number
-        #  @lines = map {
-        #    s{<span class="line_number"> ?(\d+) ?:}{
-        #      my $line = $1;
-        #      my $size = 4 - (length($1));
-        #      $size = 0 if $size < 0;
-        #      '<span class="line_number">' . ("&nbsp;" x $size) . "$line:"}e;
-        #    $_;
-        #  } @lines;
+        # remove the extra line number tag
+        @lines = map { s{<span class="line_number">}{}; $_ } @lines;
 
         # remove newlines
         $_ =~ s{<br>}{}g foreach @lines;
