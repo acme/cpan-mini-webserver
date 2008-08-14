@@ -115,21 +115,21 @@ sub handle_request {
     $self->hostname($cgi->virtual_host());
     my $path = $cgi->path_info();
 
-    my ( $raw, $pauseid, $distvname, $filename );
+    my ( $raw, $download, $pauseid, $distvname, $filename );
     if ( $path =~ m{^/~} ) {
         ( undef, $pauseid, $distvname, $filename ) = split( '/', $path, 4 );
         $pauseid =~ s{^~}{};
-    } elsif ( $path =~ m{^/raw/~} ) {
+    } elsif ( $path =~ m{^/(raw|download)/~} ) {
         ( undef, undef, $pauseid, $distvname, $filename )
             = split( '/', $path, 5 );
-        $raw = 1;
+        ($1 eq 'raw' ? $raw : $download) = 1;
         $pauseid =~ s{^~}{};
     }
     $self->pauseid($pauseid);
     $self->distvname($distvname);
     $self->filename($filename);
 
-    #warn "$raw / $pauseid / $distvname / $filename";
+    #warn "$raw / $download / $pauseid / $distvname / $filename";
 
     if ( $path eq '/' ) {
         $self->index_page();
@@ -137,6 +137,8 @@ sub handle_request {
         $self->search_page();
     } elsif ( $raw && $pauseid && $distvname && $filename ) {
         $self->raw_page();
+    } elsif ( $download && $pauseid && $distvname ) {
+        $self->download_file();
     } elsif ( $pauseid && $distvname && $filename ) {
         $self->file_page();
     } elsif ( $pauseid && $distvname ) {
@@ -349,6 +351,52 @@ sub file_page {
             html         => $html,
         }
     );
+}
+
+sub download_file {
+    my $self      = shift;
+    my $cgi       = $self->cgi;
+    my $pauseid   = $self->pauseid;
+    my $distvname = $self->distvname;
+    my $filename  = $self->filename;
+
+    my ($distribution)
+        = grep { $_->cpanid eq uc $pauseid && $_->distvname eq $distvname }
+        $self->parse_cpan_packages->distributions;
+
+    my $file
+        = file( $self->directory, 'authors', 'id', $distribution->prefix );
+
+    if ($filename) {
+        my $contents;
+        if ( $file =~ /\.(?:tar\.gz|tgz)$/ ) {
+            $contents = `tar fzxO $file $filename`;
+        } else {
+            die "Unknown distribution format $file";
+        }
+        print "HTTP/1.0 200 OK\r\n";
+        print $cgi->header(
+            -content_type => 'text/plain',
+            -content_length => length $contents,
+        );
+        print $contents;
+    } else {
+        open my $fh, $file or do {
+            print "HTTP/1.0 404 Not Found\r\n", $cgi->header, "Not Found";
+            return;
+        };
+
+        print "HTTP/1.0 200 OK\r\n";
+        my $content_type = $file =~ /zip/ ? 'application/zip' : 'application/x-gzip';
+        print $cgi->header(
+            -content_type => $content_type,
+            -content_disposition => "attachment; filename=" . $file->basename,
+            -content_length => -s $fh,
+        );
+        while (<$fh>) {
+            print;
+        }
+    }
 }
 
 sub raw_page {
