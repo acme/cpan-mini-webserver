@@ -18,6 +18,7 @@ use Term::ProgressBar::Quiet;
 Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
 
 extends 'HTTP::Server::Simple::CGI';
+has 'hostname'            => ( is => 'rw' );
 has 'cgi'                 => ( is => 'rw', isa => 'CGI' );
 has 'directory'           => ( is => 'rw', isa => 'Path::Class::Dir' );
 has 'scratch'             => ( is => 'rw', isa => 'Path::Class::Dir' );
@@ -102,6 +103,7 @@ sub after_setup_listener {
 sub handle_request {
     my ( $self, $cgi ) = @_;
     $self->cgi($cgi);
+    $self->hostname($cgi->virtual_host());
     my $path = $cgi->path_info();
 
     my ( $raw, $pauseid, $distvname, $filename );
@@ -311,7 +313,9 @@ sub file_page {
     my $contents = $self->get_file_from_tarball( $distribution, $filename );
 
     my $parser = Pod::Simple::HTML->new;
-    $parser->perldoc_url_prefix('http://localhost:2963/perldoc?');
+    my $port = $self->port;
+    my $host = $self->hostname;
+    $parser->perldoc_url_prefix("http://$host:$port/perldoc?");
     $parser->index(0);
     $parser->no_whining(1);
     $parser->no_errata_section(1);
@@ -383,9 +387,11 @@ sub raw_page {
         $_ =~ s{<br>}{}g foreach @lines;
 
         # link module names to search.cpan.org
+        my $port = $self->port;
+        my $host = $self->hostname;
         @lines = map {
             $_
-                =~ s{<span class="word">([^<]+?::[^<]+?)</span>}{<span class="word"><a href="http://localhost:2963/perldoc?$1">$1</a></span>};
+                =~ s{<span class="word">([^<]+?::[^<]+?)</span>}{<span class="word"><a href="http://$host:$port/perldoc?$1">$1</a></span>};
             $_;
         } @lines;
         $html = join '', @lines;
@@ -425,7 +431,9 @@ sub package_page {
     $postfix .= '.pm';
     my ($filename) = grep { $_ =~ /$postfix$/ }
         sort { length($a) <=> length($b) } @filenames;
-    my $url = "http://localhost:2963/~$pauseid/$distvname/$filename";
+    my $port = $self->port;
+    my $host = $self->hostname;
+    my $url = "http://$host:$port/~$pauseid/$distvname/$filename";
 
     print "HTTP/1.0 302 OK\r\n";
     print $cgi->redirect($url);
