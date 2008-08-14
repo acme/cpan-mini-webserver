@@ -167,47 +167,52 @@ template 'search' => sub {
                         outs $q;
                         outs_raw '&#148;';
                     };
-                    outs_raw '<table>';
-                    foreach my $author (@authors) {
+                    if ( @authors + @distributions + @packages ) {
+                        outs_raw '<table>';
+                        foreach my $author (@authors) {
 
-                        row {
-                            cell {
-                                show( 'author_link', $author );
+                            row {
+                                cell {
+                                    show( 'author_link', $author );
 
+                                };
                             };
-                        };
-                    }
+                        }
 
-                    foreach my $distribution (@distributions) {
-                        row {
-                            cell {
-                                show( 'distribution_link', $distribution );
-                                outs ' by ';
-                                show(
-                                    'author_link',
-                                    $parse_cpan_authors->author(
-                                        $distribution->cpanid
-                                    )
-                                );
+                        foreach my $distribution (@distributions) {
+                            row {
+                                cell {
+                                    show( 'distribution_link',
+                                        $distribution );
+                                    outs ' by ';
+                                    show(
+                                        'author_link',
+                                        $parse_cpan_authors->author(
+                                            $distribution->cpanid
+                                        )
+                                    );
 
+                                };
                             };
-                        };
-                    }
-                    foreach my $package (@packages) {
-                        row {
-                            cell {
-                                show( 'package_link', $package );
-                                outs ' by ';
-                                show(
-                                    'author_link',
-                                    $parse_cpan_authors->author(
-                                        $package->distribution->cpanid
-                                    )
-                                );
+                        }
+                        foreach my $package (@packages) {
+                            row {
+                                cell {
+                                    show( 'package_link', $package );
+                                    outs ' by ';
+                                    show(
+                                        'author_link',
+                                        $parse_cpan_authors->author(
+                                            $package->distribution->cpanid
+                                        )
+                                    );
+                                };
                             };
-                        };
+                        }
+                        outs_raw '</table>';
+                    } else {
+                        p { 'No results found.' };
                     }
-                    outs_raw '</table>';
                     show('footer');
                 };
             }

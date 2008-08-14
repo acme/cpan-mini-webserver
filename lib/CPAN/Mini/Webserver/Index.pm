@@ -45,7 +45,7 @@ sub search {
         my $value = $part->{value};
         my @words = split /(?:\:\:| |-)/, lc $value;
         foreach my $word (@words) {
-            my @word_results = @{ $index->{$word} };
+            my @word_results = @{ $index->{$word} || [] };
             if (@results) {
                 my %seen;
                 $seen{$_} = 1 foreach @word_results;
