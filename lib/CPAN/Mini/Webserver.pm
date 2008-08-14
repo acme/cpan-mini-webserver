@@ -17,7 +17,12 @@ use Term::ProgressBar::Quiet;
 
 Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
 
-extends 'HTTP::Server::Simple::CGI';
+if (eval { require HTTP::Server::Simple::Bonjour }) {
+    extends 'HTTP::Server::Simple::Bonjour', 'HTTP::Server::Simple::CGI';
+} else {
+    extends 'HTTP::Server::Simple::CGI';
+}
+
 has 'hostname'            => ( is => 'rw' );
 has 'cgi'                 => ( is => 'rw', isa => 'CGI' );
 has 'directory'           => ( is => 'rw', isa => 'Path::Class::Dir' );
@@ -30,6 +35,10 @@ has 'filename'            => ( is => 'rw' );
 has 'index' => ( is => 'rw', isa => 'CPAN::Mini::Webserver::Index' );
 
 our $VERSION = '0.36';
+
+sub service_name {
+    "$ENV{USER}'s minicpan_webserver";
+}
 
 sub get_file_from_tarball {
     my ( $self, $distribution, $filename ) = @_;
