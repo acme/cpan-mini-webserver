@@ -398,13 +398,13 @@ template 'raw' => sub {
 
 template 'opensearch' => sub {
     my $self = shift;
-    outs_raw q| <?xml version="1.0" encoding="UTF-8"?>
+    outs_raw q|<?xml version="1.0" encoding="UTF-8"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
 <ShortName>minicpan_webserver</ShortName>
 <Description>Search minicpan</Description>
 <InputEncoding>UTF-8</InputEncoding>
 <Image width="16" height="16">data:image/png,%89PNG%0D%0A%1A%0A%00%00%00%0DIHDR%00%00%00%10%00%00%00%10%08%03%00%00%00(-%0FS%00%00%00%01sRGB%00%AE%CE%1C%E9%00%00%003PLTE8%00%00%05%08%04%16%18%15%1E%1F%1D!%22%20%26(%26%2C-%2B130%3B%3D%3AFHELMKXZWegdxyw%84%86%83%9E%A0%9D%CC%CE%CBjq%F6r%00%00%00%01tRNS%00%40%E6%D8f%00%00%00lIDAT%18%D3u%8FY%0E%C20%0C%05%BD%AF)%ED%FDO%0B%85%10%15%04%EF%C7%1A%7B%2C%D9%00%7Fr%C4W%A3u%EB%2B%EFn%E3sAnr1%8E%E11%D4rq%1Bn%9E%CC%8B%15%C5%01%14u%B2%A0%3EmA9K1Z%BD%5C%C6%87%18%B4%18%8A0%A0Q%2B%C3%CC%232%9D%CE%19%E1%3B%3C%E6%E6%CA%BC%C4%A5%BB%C2%84%FC%D7%DBw%7BS%02%E3Ki%23G%00%00%00%00IEND%AEB%60%82</Image>
-<Url type="text/html" method="get" template="http://localhost:8080/search/?q={searchTerms}"/>
+<Url type="text/html" method="get" template="http://localhost:2963/search/?q={searchTerms}"/>
 </OpenSearchDescription>
 |;
 };

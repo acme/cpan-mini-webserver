@@ -228,7 +228,7 @@ sub pod_page {
     my $d = $m->distribution;
 
     my ( $pauseid, $distvname ) = ( $d->cpanid, $d->distvname );
-    my $url = "http://localhost:8080/package/$pauseid/$distvname/$pkgname/";
+    my $url = "/package/$pauseid/$distvname/$pkgname/";
 
     print "HTTP/1.0 302 OK\r\n";
     print $cgi->redirect($url);
@@ -258,7 +258,7 @@ sub file_page {
     }
 
     my $parser = Pod::Simple::HTML->new;
-    $parser->perldoc_url_prefix('http://localhost:8080/perldoc?');
+    $parser->perldoc_url_prefix('http://localhost:2963/perldoc?');
     $parser->index(0);
     $parser->no_whining(1);
     $parser->no_errata_section(1);
@@ -332,7 +332,7 @@ sub raw_page {
         # link module names to search.cpan.org
         @lines = map {
             $_
-                =~ s{<span class="word">([^<]+?::[^<]+?)</span>}{<span class="word"><a href="http://localhost:8080/perldoc?$1">$1</a></span>};
+                =~ s{<span class="word">([^<]+?::[^<]+?)</span>}{<span class="word"><a href="http://localhost:2963/perldoc?$1">$1</a></span>};
             $_;
         } @lines;
         $html = join '', @lines;
@@ -372,7 +372,7 @@ sub package_page {
     $postfix .= '.pm';
     my ($filename) = grep { $_ =~ /$postfix$/ }
         sort { length($a) <=> length($b) } @filenames;
-    my $url = "http://localhost:8080/~$pauseid/$distvname/$filename";
+    my $url = "http://localhost:2963/~$pauseid/$distvname/$filename";
 
     print "HTTP/1.0 302 OK\r\n";
     print $cgi->redirect($url);
@@ -470,7 +470,7 @@ This module is the driver that provides a web server that allows
 you to search and browse Mini CPAN. First you must install
 CPAN::Mini and create a local copy of CPAN using minicpan.
 Then you may run minicpan_webserver and search and 
-browse Mini CPAN at http://localhost:8080/.
+browse Mini CPAN at http://localhost:2963/.
 
 You may access the Subversion repository at:
 

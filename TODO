@@ -3,12 +3,7 @@ Things that we want to do
 * Make sure all patches/commits are reformatted using perltidy and
   the .perltidyrc in this directory
 
-Pick new default port, 8080 is too common
-Pass different port number in ARGV
 Have a generic error page, and push all errors to it
-Fix links in POD to go back to us (when it is pod and not code)
-Only index with KinoSearch if minicpan has changed
-
 
 Maybe use LWP::Online and gravatar? 
 
