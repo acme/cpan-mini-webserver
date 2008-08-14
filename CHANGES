@@ -1,6 +1,6 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
-0.36 
+0.36 Thu Aug 14 16:20:53 CEST 2008
      - improve searching, you can now search for "buffy -test"
      - make links to modules in the pod and source point back
        to minicpan_webserver instead of to search.cpan.org

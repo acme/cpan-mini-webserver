@@ -108,6 +108,8 @@ sub handle_request {
         $self->images_logo_page();
     } elsif ( $path eq '/static/images/favicon.png' ) {
         $self->images_favicon_page();
+    } elsif ( $path eq '/favicon.ico' ) {
+        $self->images_favicon_page();
     } elsif ( $path eq '/static/xml/opensearch.xml' ) {
         $self->opensearch_page();
     } else {
