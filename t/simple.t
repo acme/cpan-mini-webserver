@@ -80,7 +80,7 @@ $html = make_request();
 like( $html, qr{HTTP/1.0 302 OK} );
 like( $html, qr{Status: 302 Found} );
 like( $html,
-    qr{Location: http://localhost:8080/~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm}
+    qr{Location: http://localhost:2963/~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm}
 );
 
 sub make_request {

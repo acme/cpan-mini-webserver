@@ -211,7 +211,7 @@ template 'search' => sub {
                         }
                         outs_raw '</table>';
                     } else {
-                        p { 'No results found.' };
+                        p {'No results found.'};
                     }
                     show('footer');
                 };
@@ -256,6 +256,69 @@ template 'author' => sub {
     }
 };
 
+private template 'dependencies' => sub {
+    my ( $self, $meta, $pcp ) = @_;
+
+    div {
+        attr { class => 'dependencies' };
+        h2 {'Dependencies'};
+        ul {
+            foreach
+                my $deptype (qw(requires build_requires configure_requires))
+            {
+                if ( defined $meta->{$deptype} ) {
+                    foreach my $package ( keys %{ $meta->{$deptype} } ) {
+                        next if $package eq 'perl';
+                        my $d = $pcp->package($package)->distribution;
+                        next unless $d;
+                        my $distvname = $d->distvname;
+                        my $author    = $d->cpanid;
+                        li {
+                            a {
+                                attr { href => "/~$author/$distvname/" };
+                                $package;
+                            };
+                            if ( $deptype =~ /(.*?)_/ ) {
+                                outs " ($1 requirement)";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+private template 'metadata' => sub {
+    my ( $self, $meta ) = @_;
+
+    h2 {'Metadata'};
+    div {
+        attr { class => 'metadata' };
+        dl {
+            if ( $meta->{abstract} ) {
+                dt {'Abstract'};
+                dd { $meta->{abstract} };
+            }
+            if ( $meta->{abstract} ) {
+                dt {'License'};
+                dd { $meta->{license} };
+            }
+
+            foreach my $datum ( keys %{ $meta->{resources} } ) {
+                dt { ucfirst $datum; }
+                dd {
+                    a {
+                        attr { href => $meta->{resources}->{$datum}; };
+                        $meta->{resources}->{$datum};
+                    }
+
+                };
+            }
+        };
+    };
+};
+
 template 'distribution' => sub {
     my ( $self, $arguments ) = @_;
     my $author       = $arguments->{author};
@@ -263,19 +326,25 @@ template 'distribution' => sub {
     my $distvname    = $arguments->{distvname};
     my $distribution = $arguments->{distribution};
     my @filenames    = @{ $arguments->{filenames} };
+    my $meta         = $arguments->{meta};
+    my $pcp          = $arguments->{pcp};
     html {
         show( 'header', $author->name . ' > ' . $distvname );
         body {
             div {
                 attr { class => 'container' };
                 div {
-                    attr { class => 'span-24' };
+                    attr { class => 'span-24 last' };
                     show('searchbar');
                     h1 {
                         show( 'author_link', $author );
                         outs ' > ';
                         show( 'distribution_link', $distribution );
                     };
+                }
+                div {
+                    attr { class => 'span-18 last' };
+
                     outs_raw '<table>';
                     foreach my $filename (@filenames) {
                         my $href
@@ -292,6 +361,14 @@ template 'distribution' => sub {
                         };
                     }
                     outs_raw '</table>';
+                };
+                div {
+                    attr { class => 'span-6 last' };
+                    show( 'metadata', $meta );
+                    show( 'dependencies', $meta, $pcp );
+                };
+                div {
+                    attr { class => 'span-24 last' };
                     show('footer');
                 };
 

@@ -1,5 +1,7 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
+     - show metadata on distribution pages (patch by martijn)
+
 0.36 Thu Aug 14 16:20:53 CEST 2008
      - improve searching, you can now search for "buffy -test"
      - make links to modules in the pod and source point back

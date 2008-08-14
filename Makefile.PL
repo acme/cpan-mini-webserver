@@ -16,6 +16,7 @@ WriteMakefile(
         'List::MoreUtils'          => '0',
         'Moose'                    => '0',
         'Parse::CPAN::Authors'     => '0',
+        'Parse::CPAN::Meta'        => '0',
         'Parse::CPAN::Packages'    => '0',
         'Path::Class'              => '0',
         'Pod::Simple::HTML'        => '0',

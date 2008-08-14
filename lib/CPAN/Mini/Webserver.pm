@@ -7,6 +7,7 @@ use List::MoreUtils qw(uniq);
 use Moose;
 use Parse::CPAN::Authors;
 use Parse::CPAN::Packages;
+use Parse::CPAN::Meta;
 use Pod::Simple::HTML;
 use Path::Class;
 use PPI;
@@ -28,6 +29,20 @@ has 'filename'            => ( is => 'rw' );
 has 'index' => ( is => 'rw', isa => 'CPAN::Mini::Webserver::Index' );
 
 our $VERSION = '0.36';
+
+sub get_file_from_tarball {
+    my ( $self, $distribution, $filename ) = @_;
+
+    my $file
+        = file( $self->directory, 'authors', 'id', $distribution->prefix );
+
+    die "unknown distribution format $file"
+        unless ( $file =~ /\.(?:tar\.gz|tgz)$/ );
+
+    # warn "tar fzxO $file $filename";
+    my $contents = `tar fzxO $file $filename`;
+    return $contents;
+}
 
 # this is a hook that HTTP::Server::Simple calls after setting up the
 # listening socket. we use it load the indexes
@@ -206,6 +221,14 @@ sub distribution_page {
         = grep { $_->cpanid eq uc $pauseid && $_->distvname eq $distvname }
         $self->parse_cpan_packages->distributions;
 
+    my $filename = $distribution->distvname . "/META.yml";
+    my $metastr  = $self->get_file_from_tarball( $distribution, $filename );
+    my $meta     = {};
+    my @yaml     = eval { Parse::CPAN::Meta::Load($metastr); };
+    if ( not $@ ) {
+        $meta = $yaml[0];
+    }
+
     my @filenames = $self->list_files($distribution);
 
     print "HTTP/1.0 200 OK\r\n";
@@ -216,7 +239,9 @@ sub distribution_page {
             distribution => $distribution,
             pauseid      => $pauseid,
             distvname    => $distvname,
-            filenames    => \@filenames
+            filenames    => \@filenames,
+            meta         => $meta,
+            pcp          => $self->parse_cpan_packages,
         }
     );
 }
@@ -247,17 +272,7 @@ sub file_page {
         = grep { $_->cpanid eq uc $pauseid && $_->distvname eq $distvname }
         $self->parse_cpan_packages->distributions;
 
-    my $file
-        = file( $self->directory, 'authors', 'id', $distribution->prefix );
-
-    my $contents;
-    if ( $file =~ /\.(?:tar\.gz|tgz)$/ ) {
-
-        # warn "tar fzxO $file $filename";
-        $contents = `tar fzxO $file $filename`;
-    } else {
-        die "Unknown distribution format $file";
-    }
+    my $contents = $self->get_file_from_tarball( $distribution, $filename );
 
     my $parser = Pod::Simple::HTML->new;
     $parser->perldoc_url_prefix('http://localhost:2963/perldoc?');
