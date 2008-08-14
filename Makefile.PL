@@ -9,6 +9,7 @@ WriteMakefile(
     LICENSE      => 'perl',
     PREREQ_PM    => {
         'App::Cache'               => '0',
+        'CGI'                      => '3.16',
         'Convert::UU'              => '0',
         'CPAN::Mini'               => '0.565',
         'HTTP::Server::Simple'     => '0.34',
