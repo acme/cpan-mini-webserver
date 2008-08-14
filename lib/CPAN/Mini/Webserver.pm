@@ -67,7 +67,7 @@ sub checksum_data_for_author {
     my ( $content, $cksum );
     {
         local $/;
-        open my $fh, "$file" or die $!;
+        open my $fh, "$file" or die "$file: $!";
         $content = <$fh>;
         close $fh;
     }
@@ -110,6 +110,15 @@ sub after_setup_listener {
 }
 
 sub handle_request {
+    my ( $self, $cgi ) = @_;
+    eval { $self->_handle_request($cgi) };
+    if ($@) {
+        print "HTTP/1.0 500\r\n", $cgi->header,
+            "<h1>Internal Server Error</h1>", $cgi->escapeHTML($@);
+    }
+}
+
+sub _handle_request {
     my ( $self, $cgi ) = @_;
     $self->cgi($cgi);
     $self->hostname($cgi->virtual_host());
