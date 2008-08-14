@@ -16,7 +16,7 @@ if ( $@ =~ /Please set up minicpan/ ) {
 
 my $capture = IO::Capture::Stdout->new();
 
-my $server = CPAN::Mini::Webserver->new();
+my $server = CPAN::Mini::Webserver->new(2963);
 $server->after_setup_listener;
 
 # index
