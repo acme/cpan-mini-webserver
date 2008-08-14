@@ -1,6 +1,7 @@
 package CPAN::Mini::Webserver;
 use App::Cache;
 use CPAN::Mini::App;
+use CPAN::Mini::Webserver::Analyzer;
 use CPAN::Mini::Webserver::Templates;
 use KinoSearch::Analysis::PolyAnalyzer;
 use KinoSearch::InvIndexer;
@@ -56,8 +57,7 @@ sub after_setup_listener {
     my $scratch = dir( $cache->scratch );
     $self->scratch($scratch);
 
-    my $analyzer
-        = KinoSearch::Analysis::PolyAnalyzer->new( language => 'en' );
+    my $analyzer   = CPAN::Mini::Webserver::Analyzer->new;
     my $invindexer = KinoSearch::InvIndexer->new(
         invindex => $scratch,
         create   => 1,
@@ -91,6 +91,7 @@ sub after_setup_listener {
         }
     );
     my $i = 0;
+
     foreach my $author ( $parse_cpan_authors->authors ) {
         my $doc = $invindexer->new_doc;
         $doc->set_value( id   => $author->pauseid );
@@ -196,8 +197,7 @@ sub search_page {
     my $q    = $cgi->param('q');
 
     my ( @authors, @distributions, @packages );
-    my $analyzer
-        = KinoSearch::Analysis::PolyAnalyzer->new( language => 'en' );
+    my $analyzer = CPAN::Mini::Webserver::Analyzer->new;
 
     my $searcher = KinoSearch::Searcher->new(
         invindex => $self->scratch,
@@ -223,7 +223,11 @@ sub search_page {
         fields         => ['data'],
         default_boolop => 'AND',
     );
-    my $hits = $searcher->search( query => $query_parser->parse($q) );
+
+    # because of field:value searches
+    my $hacked_q = $q;
+    $hacked_q =~ s/::/ /g;
+    my $hits = $searcher->search( query => $query_parser->parse($hacked_q) );
     while ( my $hit = $hits->fetch_hit_hashref ) {
         my $id   = $hit->{id};
         my $type = $hit->{type};
