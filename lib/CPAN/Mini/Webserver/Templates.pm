@@ -366,10 +366,14 @@ template 'distribution' => sub {
                     attr { class => 'span-6 last' };
                     show( 'metadata', $meta );
                     show( 'dependencies', $meta, $pcp );
-                    h2 { 'Download' };
+                    h2 {'Download'};
                     div {
-                        a { attr { href => '/download/~' . $author->pauseid . "/$distvname" };
-                            $distribution->filename }
+                        a {
+                            attr {    href => '/download/~'
+                                    . $author->pauseid
+                                    . "/$distvname" };
+                            $distribution->filename;
+                        }
                     };
                 };
                 div {
@@ -472,7 +476,9 @@ template 'raw' => sub {
                     div {
                         attr { class => 'download-link' };
                         a {
-                            attr { href => '/download/~' . $author->pauseid . "/$distvname/$filename" };
+                            attr {    href => '/download/~'
+                                    . $author->pauseid
+                                    . "/$distvname/$filename" };
                             "Download as plain text";
                         };
                     };

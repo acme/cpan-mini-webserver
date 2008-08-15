@@ -17,7 +17,7 @@ use Term::ProgressBar::Quiet;
 
 Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
 
-if (eval { require HTTP::Server::Simple::Bonjour }) {
+if ( eval { require HTTP::Server::Simple::Bonjour } ) {
     extends 'HTTP::Server::Simple::Bonjour', 'HTTP::Server::Simple::CGI';
 } else {
     extends 'HTTP::Server::Simple::CGI';
@@ -121,7 +121,7 @@ sub handle_request {
 sub _handle_request {
     my ( $self, $cgi ) = @_;
     $self->cgi($cgi);
-    $self->hostname($cgi->virtual_host());
+    $self->hostname( $cgi->virtual_host() );
     my $path = $cgi->path_info();
 
     my ( $raw, $download, $pauseid, $distvname, $filename );
@@ -131,7 +131,7 @@ sub _handle_request {
     } elsif ( $path =~ m{^/(raw|download)/~} ) {
         ( undef, undef, $pauseid, $distvname, $filename )
             = split( '/', $path, 5 );
-        ($1 eq 'raw' ? $raw : $download) = 1;
+        ( $1 eq 'raw' ? $raw : $download ) = 1;
         $pauseid =~ s{^~}{};
     }
     $self->pauseid($pauseid);
@@ -333,8 +333,8 @@ sub file_page {
     my $contents = $self->get_file_from_tarball( $distribution, $filename );
 
     my $parser = Pod::Simple::HTML->new;
-    my $port = $self->port;
-    my $host = $self->hostname;
+    my $port   = $self->port;
+    my $host   = $self->hostname;
     $parser->perldoc_url_prefix("http://$host:$port/perldoc?");
     $parser->index(0);
     $parser->no_whining(1);
@@ -385,7 +385,7 @@ sub download_file {
         }
         print "HTTP/1.0 200 OK\r\n";
         print $cgi->header(
-            -content_type => 'text/plain',
+            -content_type   => 'text/plain',
             -content_length => length $contents,
         );
         print $contents;
@@ -396,11 +396,12 @@ sub download_file {
         };
 
         print "HTTP/1.0 200 OK\r\n";
-        my $content_type = $file =~ /zip/ ? 'application/zip' : 'application/x-gzip';
+        my $content_type
+            = $file =~ /zip/ ? 'application/zip' : 'application/x-gzip';
         print $cgi->header(
-            -content_type => $content_type,
+            -content_type        => $content_type,
             -content_disposition => "attachment; filename=" . $file->basename,
-            -content_length => -s $fh,
+            -content_length      => -s $fh,
         );
         while (<$fh>) {
             print;
@@ -499,7 +500,7 @@ sub package_page {
         sort { length($a) <=> length($b) } @filenames;
     my $port = $self->port;
     my $host = $self->hostname;
-    my $url = "http://$host:$port/~$pauseid/$distvname/$filename";
+    my $url  = "http://$host:$port/~$pauseid/$distvname/$filename";
 
     print "HTTP/1.0 302 OK\r\n";
     print $cgi->redirect($url);
