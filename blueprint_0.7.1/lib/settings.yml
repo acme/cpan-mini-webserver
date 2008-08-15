@@ -1,6 +1,6 @@
 # refer to http://www.yaml.org/spec/1.1/ for clarification on YAML collections
 cpanminiwebserver:
-  path: /home/acme/hg/CPAN-Mini-Webserver/root/static/css/
+  path: /home/acme/svk/cpan-mini-webserver/root/static/css/
   plugins:
     - buttons
 project1:
