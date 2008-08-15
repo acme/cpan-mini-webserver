@@ -305,14 +305,15 @@ private template 'metadata' => sub {
                     dt { ucfirst $key; };
                     dd { $meta->{$key} };
                 }
-                foreach my $datum ( keys %{ $meta->{resources} } ) {
-                    dt { ucfirst $datum; }
-                    dd {
-                        a {
-                            attr { href => $meta->{resources}->{$datum}; };
-                            $meta->{resources}->{$datum};
-                        }
-                    };
+            }
+            foreach my $datum ( keys %{ $meta->{resources} } ) {
+                dt { ucfirst $datum; }
+                dd {
+                    a {
+                        attr { href => $meta->{resources}->{$datum}; };
+                        $meta->{resources}->{$datum};
+                    }
+
                 }
             }
         }

@@ -1,5 +1,8 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
+0.38
+     - fix bug which repeated metadata (spotted by claes)
+
 0.37 Fri Aug 15 09:37:46 CEST 2008
      - show metadata on distribution pages (patch by martijn)
      - port can now be configured with --port command line option 
