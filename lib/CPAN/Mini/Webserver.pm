@@ -13,7 +13,6 @@ use Path::Class;
 use PPI;
 use PPI::HTML;
 use Template::Declare;
-use Term::ProgressBar::Quiet;
 
 Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
 
