@@ -50,6 +50,7 @@ div#searchbar {
 .double  { color: #CD5555;}
 
 /* for the distribution page */ 
-tr.inc { display: none; }
-tr.lib { background-color: #eeeeee; }
-tr.t { background-color: #cccccc; }
+.inc { display:none; }
+.lib { color:#000099; }
+.t { color:#000066; }
+.notcode { color:#000033; }
