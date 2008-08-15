@@ -64,6 +64,8 @@ sub checksum_data_for_author {
         $pauseid, 'CHECKSUMS',
     );
 
+    return unless -f $file;
+
     my ( $content, $cksum );
     {
         local $/;
