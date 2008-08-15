@@ -4,6 +4,7 @@ Things that we want to do
   the .perltidyrc in this directory
 
 Have a generic error page, and push all errors to it
+Reload indexes if the indexes have updated
 
 Maybe use LWP::Online and gravatar? 
 
