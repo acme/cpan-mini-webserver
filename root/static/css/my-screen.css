@@ -1,0 +1,55 @@
+h1 {font-size:2em;clear:both;margin-top:10px;}
+h2 {font-size:1.7em;clear:both;}
+h3 {font-size:1.4em;clear:both;}
+
+body {
+  background:#ffffff;
+  font-size:100%;
+  font-family:Georgia, "Times New Roman", Times, serif;
+}
+
+pre,code,tt {
+  font-size:80%
+}
+
+td.searchbar {
+  vertical-align:middle;
+}
+
+
+
+/* for Pod::Simple::HTML */
+
+div#searchbar {
+  min-height: 10em;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+/* for PPI::HTML */
+
+#code {
+  font-size: 120%;
+  font-family: monospace;
+  padding: 10px 10px 10px 10px;
+}
+#eval {
+  font-family: monospace;
+  border-width: 1px;
+  border-style: solid solid solid solid;
+  border-color: #ccc;
+  padding: 5px 5px 5px 5px;
+}
+.line_number { color: #aaaaaa; }
+.comment  { color: #228B22; }
+.symbol  { color: #00688B; }
+.word { color: #8B008B; font-weight:bold; }
+.structure { color: #000000; }
+.number { color: #B452CD; }
+.single  { color: #CD5555;}
+.double  { color: #CD5555;}
+
+/* for the distribution page */ 
+tr.inc { display: none; }
+tr.lib { background-color: #eeeeee; }
+tr.t { background-color: #cccccc; }
