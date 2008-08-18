@@ -271,7 +271,7 @@ private template 'dependencies' => sub {
                 my $deptype (qw(requires build_requires configure_requires))
             {
                 if ( defined $meta->{$deptype} ) {
-                    foreach my $package ( keys %{ $meta->{$deptype} } ) {
+                    foreach my $package ( sort keys %{ $meta->{$deptype} } ) {
                         next if $package eq 'perl';
                         my $d = $pcp->package($package)->distribution;
                         next unless $d;
