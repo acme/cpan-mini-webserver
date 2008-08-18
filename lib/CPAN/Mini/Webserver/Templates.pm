@@ -92,6 +92,35 @@ private template 'package_link' => sub {
     };
 };
 
+private template distribution_file => sub {
+    my ( $self, $pauseid, $distvname, $filename ) = (@_);
+
+    my $display_filename
+        = ( $filename =~ /^$distvname\/(.*)$/ )
+        ? $1
+        : $filename;
+    my $class
+        = ( $filename =~ m{/(lib|t|inc)/} )
+        ? $1
+        : 'notcode';
+    my $href
+        = ( $filename =~ /\.(pm|PL|pod)$/ )
+        ? "/~$pauseid/$distvname/$filename"
+        : "/raw/~$pauseid/$distvname/$filename";
+    row {
+        cell {
+            attr { class => $class } if $class;
+            a {
+                attr { href => $href };
+                span {
+                    attr { class => $class } if $class;
+                    $display_filename;
+                };
+            };
+        };
+    };
+};
+
 private template 'searchbar' => sub {
     my $self = shift;
     my $q    = shift;
@@ -449,26 +478,10 @@ template 'distribution' => sub {
 
                     outs_raw '<table>';
                     foreach my $filename (@filenames) {
-                        my $class
-                            = ( $filename =~ m{/(lib|t|inc)/} )
-                            ? $1
-                            : 'notcode';
-                        my $href
-                            = ( $filename =~ /\.(pm|PL|pod)$/ )
-                            ? "/~$pauseid/$distvname/$filename"
-                            : "/raw/~$pauseid/$distvname/$filename";
-                        row {
-                            cell {
-                                attr { class => $class } if $class;
-                                a {
-                                    attr { href => $href };
-                                    span {
-                                        attr { class => $class } if $class;
-                                        $filename;
-                                    };
-                                };
-                            };
-                        };
+                        show(
+                            distribution_file => $pauseid,
+                            $distvname, $filename
+                        );
                     }
                     outs_raw '</table>';
                 };

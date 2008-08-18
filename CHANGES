@@ -16,6 +16,8 @@ Revision history for Perl module CPAN::Mini::Webserver:
        support into their own methods (patch by jesse)
      - a more CPAN::Mini::Webserver specific banner at startup
        (patch by jesse)  
+     - extract the code used to render an item in the distro list 
+       and remove redundant filename prefix (patch by jesse)
 
 0.38 Mon Aug 18 09:15:25 BST 2008
      - fix bug which repeated metadata (spotted by claes)
