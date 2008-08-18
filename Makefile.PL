@@ -19,7 +19,7 @@ WriteMakefile(
         'Moose'                    => '0',
         'Parse::CPAN::Authors'     => '0',
         'Parse::CPAN::Meta'        => '0',
-        'Parse::CPAN::Packages'    => '0',
+        'Parse::CPAN::Packages'    => '2.28',
         'Path::Class'              => '0',
         'Pod::Simple::HTML'        => '0',
         'Perl6::Say'               => '0',
