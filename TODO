@@ -8,3 +8,48 @@ Reload indexes if the indexes have updated
 
 Maybe use LWP::Online and gravatar? 
 
+Ideas from Max Maischein:
+
+- (general)
+ * Make error message for missing ~/.minicpanrc clearer
+ * Write some tests for the new functionalities
+
+- (general)
+ * Make the start page have links to "categories", like "XML modules"
+   etc. - this could be a (hand|community)-vetted list later but for
+   the start these links should just be predefined searches
+   for "XML", "DBI", "CGI".
+ * Consider listing "Web frameworks". Later.
+ * An empty search string causes an error.
+
+- (mirror) Mini CPAN Mirror Status page
+ * Show time of mirror
+ * Alert if mirror is older than a week (or month? Configurable?)
+ * "Update" link to launch C<minicpan> and update the mirror
+
+- (maintenance) Mini CPAN installed modules page
+ * List (all, paged) installed modules with links to local minicpan
+ * Version status of every module
+ * "Upgrade" button
+ * "Upgrade all" button (dangerous, but what the hell)
+
+- (maintenance)
+ * Redirect CPAN.pm/Makefile.PL STDIN/STDOUT/STDERR to web
+
+Ideas from Mark Fowler:
+
+- Be able to use the webserver from a remote computer as a standard
+CPAN mirror
+- Make p3rl.org short url paths work and 302 to the right place
+
+After that I had a laundry list of other features:
+
+- example init.d and launchd scripts
+- ability to detect that the index files have updated on disk and
+reload the indexes
+- Render local perldoc (perlfunc chunks, perltoot, perltie, etc)
+- Add links to search / rt / anno / etc from the module page
+- 'AJAX' Autocompletion in the searchbar
+- Indication if this module (and what version) is installed on the
+machine running the webserver
+
