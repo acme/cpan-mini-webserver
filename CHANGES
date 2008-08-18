@@ -7,6 +7,11 @@ Revision history for Perl module CPAN::Mini::Webserver:
      - sort dependencies
      - narrow down the search results based on educated guesses based
        on the search query (patch by martijn)
+     - use Archive::Tar if installed, otherwise external tar 
+       (patch by corion)
+     - display the installed version of a distribution (patch by
+       corion)
+     - add an "Install" button, very alpha (patch by corion)
 
 0.38 Mon Aug 18 09:15:25 BST 2008
      - fix bug which repeated metadata (spotted by claes)

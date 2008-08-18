@@ -328,6 +328,69 @@ private template 'metadata' => sub {
     };
 };
 
+private template 'download' => sub {
+    my ( $self, $author, $distribution ) = @_;
+    my $distvname = $distribution->distvname;
+    h2 {'Download'};
+    div {
+        a {
+            attr { href => '/download/~' . $author->pauseid . "/$distvname" };
+            $distribution->filename;
+        }
+    };
+};
+
+private template 'install' => sub {
+    my ( $self, $author, $distribution, $filenames ) = @_;
+    my $distvname = $distribution->distvname;
+
+    # Check whether we have the module/distribution installed
+    # And display the status
+    # Just fudge:
+    # * If we have lib/*.pm, that's a contained module
+    my @modules = map {
+        m![^/]*/lib/(.*?)\.pm!;
+        $_ = $1;
+        s!/!::!g;
+        $_
+        } grep {
+        m![^/]*/lib/.*?\.pm$!
+        } @{$filenames};
+
+    my $installed_version = Module::InstalledVersion->new( $modules[0] );
+
+    my $msg    = "Not installed on this Perl";
+    my $action = 'Install';
+    if ( $installed_version->{version} ) {
+        $msg = sprintf 'You have version %s installed.',
+            $installed_version->{version};
+        if ( $installed_version->{version} lt $distribution->version ) {
+            $action = 'Update';
+        } elsif ( $installed_version->{version} eq $distribution->version ) {
+            $action = 'Reinstall';
+        } else {
+            $action = 'Downgrade';
+        }
+    }
+
+    h2 {'Install'};
+    div {
+        attr { class => 'install' };
+        div { attr { 'class' => "install-message" }; $msg };
+        form {
+            attr { class => 'install-link' } attr { method => 'PUT' };
+            attr {
+                      action => '/install/~'
+                    . lc( $distribution->cpanid ) . '/'
+                    . $distribution->distvname . '/'
+                    . $distribution->filename;
+            };
+            button {$action} $action;
+        };
+    };
+
+};
+
 template 'distribution' => sub {
     my ( $self, $arguments ) = @_;
     my $author       = $arguments->{author};
@@ -381,17 +444,10 @@ template 'distribution' => sub {
                 };
                 div {
                     attr { class => 'span-6 last' };
-                    show( 'metadata', $meta );
+                    show( 'metadata',     $meta );
                     show( 'dependencies', $meta, $pcp );
-                    h2 {'Download'};
-                    div {
-                        a {
-                            attr {    href => '/download/~'
-                                    . $author->pauseid
-                                    . "/$distvname" };
-                            $distribution->filename;
-                        }
-                    };
+                    show( 'download',     $author, $distribution );
+                    show( 'install', $author, $distribution, \@filenames );
                 };
                 div {
                     attr { class => 'span-24 last' };

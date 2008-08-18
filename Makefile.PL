@@ -15,6 +15,7 @@ WriteMakefile(
         'HTTP::Server::Simple'     => '0.34',
         'IO::Capture::Stdout'      => '0',
         'List::MoreUtils'          => '0',
+        'Module::InstalledVersion' => '0',
         'Moose'                    => '0',
         'Parse::CPAN::Authors'     => '0',
         'Parse::CPAN::Meta'        => '0',
@@ -27,6 +28,7 @@ WriteMakefile(
         'Search::QueryParser'      => '0',
         'Template::Declare'        => '0.29',
         'Test::More'               => '0',
+
     },
     'EXE_FILES' => ['bin/minicpan_webserver'],
 );

@@ -4,6 +4,7 @@ use CPAN::Mini::App;
 use CPAN::Mini::Webserver::Index;
 use CPAN::Mini::Webserver::Templates;
 use List::MoreUtils qw(uniq);
+use Module::InstalledVersion;
 use Moose;
 use Parse::CPAN::Authors;
 use Parse::CPAN::Packages;
@@ -49,7 +50,19 @@ sub get_file_from_tarball {
         unless ( $file =~ /\.(?:tar\.gz|tgz)$/ );
 
     # warn "tar fzxO $file $filename";
-    my $contents = `tar fzxO $file $filename`;
+    #my $contents = `tar fzxO $file $filename`;
+    my $contents;
+    if ( eval { require Archive::Tar; 1 } ) {
+        my $ar = Archive::Tar->new("$file");
+        $contents = $ar->get_content($filename);
+    } else {
+
+        # Use the system built-in tar (hopefully)
+        # This one hopefully understands -z
+        # and CPAN filenames contain hopefully no weird characters
+        # warn "tar fzxO $file $filename";
+        $contents = `tar fzxO $file $filename`;
+    }
     return $contents;
 }
 
@@ -125,14 +138,19 @@ sub _handle_request {
     $self->hostname( $cgi->virtual_host() );
     my $path = $cgi->path_info();
 
-    my ( $raw, $download, $pauseid, $distvname, $filename );
+    # $raw, $download and $install should become $action?
+    my ( $raw, $install, $download, $pauseid, $distvname, $filename );
     if ( $path =~ m{^/~} ) {
         ( undef, $pauseid, $distvname, $filename ) = split( '/', $path, 4 );
         $pauseid =~ s{^~}{};
-    } elsif ( $path =~ m{^/(raw|download)/~} ) {
+    } elsif ( $path =~ m{^/(raw|download|install)/~} ) {
         ( undef, undef, $pauseid, $distvname, $filename )
             = split( '/', $path, 5 );
-        ( $1 eq 'raw' ? $raw : $download ) = 1;
+
+        (     $1 eq 'raw'     ? $raw
+            : $1 eq 'install' ? $install
+            : $download
+        ) = 1;
         $pauseid =~ s{^~}{};
     }
     $self->pauseid($pauseid);
@@ -147,6 +165,8 @@ sub _handle_request {
         $self->search_page();
     } elsif ( $raw && $pauseid && $distvname && $filename ) {
         $self->raw_page();
+    } elsif ( $install && $pauseid && $distvname && $filename ) {
+        $self->install_page();
     } elsif ( $download && $pauseid && $distvname ) {
         $self->download_file();
     } elsif ( $pauseid && $distvname && $filename ) {
@@ -328,6 +348,33 @@ sub pod_page {
     print $cgi->redirect($url);
 }
 
+sub install_page {
+    my $self      = shift;
+    my $cgi       = $self->cgi;
+    my $pauseid   = $self->pauseid;
+    my $distvname = $self->distvname;
+
+    my ($distribution)
+        = grep { $_->cpanid eq uc $pauseid && $_->distvname eq $distvname }
+        $self->parse_cpan_packages->distributions;
+
+    my $file
+        = file( $self->directory, 'authors', 'id', $distribution->prefix );
+
+    print "HTTP/1.0 200 OK\r\n";
+    print $cgi->header;
+    printf '<html><body><h1>Installing %s</h1><pre>',
+        $distribution->distvname;
+
+    warn sprintf "Installing '%s'\n", $distribution->prefix;
+
+    require CPAN;    # loads CPAN::Shell
+    CPAN::Shell->install( $distribution->prefix );
+
+    printf '</pre><a href="/~%s/%s">Go back</a></body></html>',
+        $self->pauseid, $self->distvname;
+}
+
 sub file_page {
     my $self      = shift;
     my $cgi       = $self->cgi;
@@ -386,12 +433,8 @@ sub download_file {
         = file( $self->directory, 'authors', 'id', $distribution->prefix );
 
     if ($filename) {
-        my $contents;
-        if ( $file =~ /\.(?:tar\.gz|tgz)$/ ) {
-            $contents = `tar fzxO $file $filename`;
-        } else {
-            die "Unknown distribution format $file";
-        }
+        my $contents
+            = $self->get_file_from_tarball( $distribution, $filename );
         print "HTTP/1.0 200 OK\r\n";
         print $cgi->header(
             -content_type   => 'text/plain',
@@ -432,14 +475,7 @@ sub raw_page {
     my $file
         = file( $self->directory, 'authors', 'id', $distribution->prefix );
 
-    my $contents;
-    if ( $file =~ /\.(?:tar\.gz|tgz)$/ ) {
-
-        # warn "tar fzxO $file $filename";
-        $contents = `tar fzxO $file $filename`;
-    } else {
-        die "Unknown distribution format $file";
-    }
+    my $contents = $self->get_file_from_tarball( $distribution, $filename );
 
     my $html;
 
@@ -524,8 +560,13 @@ sub list_files {
     if ( $file =~ /\.(?:tar\.gz|tgz)$/ ) {
 
         # warn "tar fzt $file";
-        @filenames = sort `tar fzt $file`;
-        chomp @filenames;
+        if ( eval { require Archive::Tar; 1 } ) {
+            my $ar = Archive::Tar->new("$file");
+            @filenames = sort $ar->list_files();
+        } else {
+            @filenames = sort `tar fzt $file`;
+            chomp @filenames;
+        }
         @filenames = grep { $_ !~ m{/$} } @filenames;
     } else {
         die "Unknown distribution format $file";
