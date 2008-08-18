@@ -4,6 +4,9 @@ Revision history for Perl module CPAN::Mini::Webserver:
      - make a single key from the license text and the license url
        from resources instead of displaying both seperately (patch
        by martijn)
+     - sort dependencies
+     - narrow down the search results based on educated guesses based
+       on the search query (patch by martijn)
 
 0.38 Mon Aug 18 09:15:25 BST 2008
      - fix bug which repeated metadata (spotted by claes)

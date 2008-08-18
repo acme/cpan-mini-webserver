@@ -199,13 +199,21 @@ sub search_page {
 
     my $index   = $self->index;
     my @results = $index->search($q);
-    my @authors
-        = uniq grep { ref($_) eq 'Parse::CPAN::Authors::Author' } @results;
-    my @distributions
-        = uniq grep { ref($_) eq 'Parse::CPAN::Packages::Distribution' }
-        @results;
-    my @packages
-        = uniq grep { ref($_) eq 'Parse::CPAN::Packages::Package' } @results;
+    my ( @authors, @distributions, @packages );
+
+    if ( $q !~ /(?:::|-)/ ) {
+        @authors = uniq grep { ref($_) eq 'Parse::CPAN::Authors::Author' }
+            @results;
+    }
+    if ( $q !~ /::/ ) {
+        @distributions
+            = uniq grep { ref($_) eq 'Parse::CPAN::Packages::Distribution' }
+            @results;
+    }
+    if ( $q !~ /-/ ) {
+        @packages = uniq grep { ref($_) eq 'Parse::CPAN::Packages::Package' }
+            @results;
+    }
 
     @authors = sort { $a->name cmp $b->name } @authors;
 
