@@ -303,7 +303,15 @@ private template 'metadata' => sub {
             foreach my $key ( qw(abstract license), 'release date' ) {
                 if ( defined $meta->{$key} ) {
                     dt { ucfirst $key; };
-                    dd { $meta->{$key} };
+                    if ( defined $meta->{resources}->{$key} ) {
+                        a {
+                            attr {
+                                href => delete $meta->{resources}->{$key} };
+                            $meta->{$key};
+                        };
+                    } else {
+                        dd { $meta->{$key} };
+                    }
                 }
             }
             foreach my $datum ( keys %{ $meta->{resources} } ) {
