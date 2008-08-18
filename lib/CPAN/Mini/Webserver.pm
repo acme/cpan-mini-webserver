@@ -33,7 +33,7 @@ has 'distvname'           => ( is => 'rw' );
 has 'filename'            => ( is => 'rw' );
 has 'index' => ( is => 'rw', isa => 'CPAN::Mini::Webserver::Index' );
 
-our $VERSION = '0.37';
+our $VERSION = '0.38';
 
 sub service_name {
     "$ENV{USER}'s minicpan_webserver";
