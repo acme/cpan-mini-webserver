@@ -124,6 +124,57 @@ private template 'searchbar' => sub {
     };
 };
 
+private template 'search_results' => sub {
+    my ( $self, $arguments ) = @_;
+    my $parse_cpan_authors = $arguments->{parse_cpan_authors};
+    my $q                  = $arguments->{q};
+    my @authors            = @{ $arguments->{authors} };
+    my @distributions      = @{ $arguments->{distributions} };
+    my @packages           = @{ $arguments->{packages} };
+    if ( @authors + @distributions + @packages ) {
+        outs_raw '<table>';
+        foreach my $author (@authors) {
+
+            row {
+                cell {
+                    show( 'author_link', $author );
+
+                };
+            };
+        }
+
+        foreach my $distribution (@distributions) {
+            row {
+                cell {
+                    show( 'distribution_link', $distribution );
+                    outs ' by ';
+                    show( 'author_link',
+                        $parse_cpan_authors->author( $distribution->cpanid )
+                    );
+
+                };
+            };
+        }
+        foreach my $package (@packages) {
+            row {
+                cell {
+                    show( 'package_link', $package );
+                    outs ' by ';
+                    show(
+                        'author_link',
+                        $parse_cpan_authors->author(
+                            $package->distribution->cpanid
+                        )
+                    );
+                };
+            };
+        }
+        outs_raw '</table>';
+    } else {
+        p {'No results found.'};
+    }
+};
+
 template 'index' => sub {
     my $self = shift;
 
@@ -145,15 +196,40 @@ template 'index' => sub {
     };
 };
 
+template '404' => sub {
+    my ( $self, $arguments ) = @_;
+    my $q = $arguments->{q};
+    html {
+        attr { xmlns => 'http://www.w3.org/1999/xhtml' };
+        div {
+            attr { class => 'container' };
+            div {
+                attr { class => 'span-24' };
+                show( 'header', 'File not found' );
+                body {
+                    show( 'searchbar', $q );
+                    h1 {'Sorry. I couldn\'t find the page you wanted.'};
+                    p {
+                        "Unfortunately, the page you were looking for doesn't exist. Perhaps a quick search for $q will turn up what you were looking for:";
+                    };
+                };
+                h2 {
+                    outs "Search for ";
+                    outs_raw '&#147;';
+                    outs $q;
+                    outs_raw '&#148;';
+                };
+                show( 'search_results', $arguments );
+                show('footer');
+            };
+        };
+    };
+};
+
 template 'search' => sub {
     my ( $self, $arguments ) = @_;
-    my $parse_cpan_authors = $arguments->{parse_cpan_authors};
-    my $q                  = $arguments->{q};
-    my @authors            = @{ $arguments->{authors} };
-    my @distributions      = @{ $arguments->{distributions} };
-    my @packages           = @{ $arguments->{packages} };
+    my $q = $arguments->{q};
     html {
-
         show( 'header', "Search for `$q'" );
         body {
             div {
@@ -167,58 +243,12 @@ template 'search' => sub {
                         outs $q;
                         outs_raw '&#148;';
                     };
-                    if ( @authors + @distributions + @packages ) {
-                        outs_raw '<table>';
-                        foreach my $author (@authors) {
-
-                            row {
-                                cell {
-                                    show( 'author_link', $author );
-
-                                };
-                            };
-                        }
-
-                        foreach my $distribution (@distributions) {
-                            row {
-                                cell {
-                                    show( 'distribution_link',
-                                        $distribution );
-                                    outs ' by ';
-                                    show(
-                                        'author_link',
-                                        $parse_cpan_authors->author(
-                                            $distribution->cpanid
-                                        )
-                                    );
-
-                                };
-                            };
-                        }
-                        foreach my $package (@packages) {
-                            row {
-                                cell {
-                                    show( 'package_link', $package );
-                                    outs ' by ';
-                                    show(
-                                        'author_link',
-                                        $parse_cpan_authors->author(
-                                            $package->distribution->cpanid
-                                        )
-                                    );
-                                };
-                            };
-                        }
-                        outs_raw '</table>';
-                    } else {
-                        p {'No results found.'};
-                    }
+                    show( 'search_results', $arguments );
                     show('footer');
-                };
-            }
-        };
-
-    }
+                }
+            };
+        }
+    };
 };
 
 template 'author' => sub {

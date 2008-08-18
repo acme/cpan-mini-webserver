@@ -177,6 +177,8 @@ sub _handle_request {
         $self->author_page();
     } elsif ( $path =~ m{^/perldoc} ) {
         $self->pod_page();
+    } elsif ( $path =~ m{^/dist/} ) {
+        $self->dist_page();
     } elsif ( $path =~ m{^/package/} ) {
         $self->package_page();
     } elsif ( $path eq '/static/css/screen.css' ) {
@@ -194,13 +196,35 @@ sub _handle_request {
     } elsif ( $path eq '/static/xml/opensearch.xml' ) {
         $self->opensearch_page();
     } else {
-        print "HTTP/1.0 404 Not found\r\n";
-        print $cgi->header,
-            $cgi->start_html('Not found'),
-            $cgi->h1('Not found'),
-            $cgi->h2( 'path: ' . $path ),
-            $cgi->end_html;
+        my ($q) = $path =~ m'/(.*?)/?$';
+        $self->not_found_page($q);
     }
+
+}
+
+sub not_found_page {
+    my $self = shift;
+    my $q    = shift;
+    my ( $authors, $dists, $packages ) = $self->_do_search($q);
+    print "HTTP/1.0 200 OK\r\n";
+    print $self->cgi->header;
+    print Template::Declare->show(
+        '404',
+        {   parse_cpan_authors => $self->parse_cpan_authors,
+            q                  => $q,
+            authors            => $authors,
+            distributions      => $dists,
+            packages           => $packages
+        }
+    );
+}
+
+sub redirect {
+    my $self = shift;
+    my $url  = shift;
+    print "HTTP/1.0 302 OK\r\n";
+    print $self->cgi->redirect($url);
+
 }
 
 sub index_page {
@@ -217,6 +241,23 @@ sub search_page {
     my $cgi  = $self->cgi;
     my $q    = $cgi->param('q');
 
+    my ( $authors, $dists, $packages ) = $self->_do_search($q);
+    print "HTTP/1.0 200 OK\r\n";
+    print $cgi->header;
+    print Template::Declare->show(
+        'search',
+        {   parse_cpan_authors => $self->parse_cpan_authors,
+            q                  => $q,
+            authors            => $authors,
+            distributions      => $dists,
+            packages           => $packages
+        }
+    );
+}
+
+sub _do_search {
+    my $self    = shift;
+    my $q       = shift;
     my $index   = $self->index;
     my @results = $index->search($q);
     my ( @authors, @distributions, @packages );
@@ -251,17 +292,8 @@ sub search_page {
             || $a->package cmp $b->package
     } @packages;
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header;
-    print Template::Declare->show(
-        'search',
-        {   parse_cpan_authors => $self->parse_cpan_authors,
-            q                  => $q,
-            authors            => \@authors,
-            distributions      => \@distributions,
-            packages           => \@packages,
-        }
-    );
+    return ( \@authors, \@distributions, \@packages );
+
 }
 
 sub author_page {
@@ -344,8 +376,7 @@ sub pod_page {
     my ( $pauseid, $distvname ) = ( $d->cpanid, $d->distvname );
     my $url = "/package/$pauseid/$distvname/$pkgname/";
 
-    print "HTTP/1.0 302 OK\r\n";
-    print $cgi->redirect($url);
+    $self->redirect($url);
 }
 
 sub install_page {
@@ -442,10 +473,7 @@ sub download_file {
         );
         print $contents;
     } else {
-        open my $fh, $file or do {
-            print "HTTP/1.0 404 Not Found\r\n", $cgi->header, "Not Found";
-            return;
-        };
+        open my $fh, $file or return $self->not_found_page( $self->filename );
 
         print "HTTP/1.0 200 OK\r\n";
         my $content_type
@@ -524,6 +552,17 @@ sub raw_page {
     );
 }
 
+sub dist_page {
+    my $self = shift;
+    my ($dist) = $self->cgi->path_info =~ m{^/dist/(.+?)$};
+    my $latest = $self->parse_cpan_packages->latest_distribution($dist);
+    if ($latest) {
+        $self->redirect( "/~" . $latest->cpanid . "/" . $latest->distvname );
+    } else {
+        $self->not_found_page($dist);
+    }
+}
+
 sub package_page {
     my $self = shift;
     my $cgi  = $self->cgi;
@@ -547,8 +586,7 @@ sub package_page {
     my $host = $self->hostname;
     my $url  = "http://$host:$port/~$pauseid/$distvname/$filename";
 
-    print "HTTP/1.0 302 OK\r\n";
-    print $cgi->redirect($url);
+    $self->redirect($url);
 }
 
 sub list_files {
