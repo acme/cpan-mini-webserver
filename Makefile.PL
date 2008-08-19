@@ -10,11 +10,11 @@ WriteMakefile(
     PREREQ_PM    => {
         'App::Cache'               => '0',
         'CGI'                      => '3.16',
-        'Convert::UU'              => '0',
         'CPAN::Mini'               => '0.565',
         'HTTP::Server::Simple'     => '0.34',
         'IO::Capture::Stdout'      => '0',
         'List::MoreUtils'          => '0',
+        'MIME::Base64'             => '0',
         'Module::InstalledVersion' => '0',
         'Moose'                    => '0',
         'Parse::CPAN::Authors'     => '0',

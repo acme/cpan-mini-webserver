@@ -1,7 +1,7 @@
 package CPAN::Mini::Webserver::Templates;
 use strict;
 use warnings;
-use Convert::UU qw(uudecode);
+use MIME::Base64;
 use Template::Declare::Tags;
 use base 'Template::Declare';
 
@@ -1022,67 +1022,50 @@ hr {margin:-8px auto 11px;}
 
 template 'images_logo' => sub {
     my $self      = shift;
-    my $uuencoded = q|begin 644 logo.png
-MB5!.1PT*&@H````-24A$4@```%(````8"`,```!>,5JC`````7-21T(`KLX<
-MZ0```I%03%1%`@("`P,#!`0$!04%!@8&!P<'"`@("0D)"@H*"PL+#`P,#0T-
-M#@X.#P\/$!`0$1$1$A(2$Q,3%!04%145%A86%Q<7&!@8&1D9&AH:&QL;'AX>
-M'Q\?("`@(2$A(B(B(R,C)"0D)24E)B8F)R<G*"@H*2DI*BHJ*RLK+"PL+2TM
-M+BXN+R\O,#`P,3$Q,C(R,S,S-34U-C8V-S<W.#@X.3DY.CHZ.SL[/#P\/3T]
-M/CX^/S\_0$!`04%!0D)"0T-#1$1$145%2$A(24E)2DI*34U-3T]/4%!045%1
-M4E)24U-35%1455555U=76%A865E96UM;75U=7EY>7U]?8V-C9&1D9F9F:&AH
-M:6EI:VMK;6UM;FYN;V]O<'!P<7%Q<G)R='1T=75U=G9V>GIZ>WM[?'Q\?7U]
-M?GY^?W]_@("`@8&!@H*"@X.#A86%AH:&B(B(B8F)C(R,C8V-CHZ.D)"0D9&1
-MDI*2DY.3E)24EI:6EY>7F)B8F9F9FIJ:FYN;G)R<G9V=GIZ>GY^?H*"@H:&A
-MHJ*BHZ.CI*2DI:6EIJ:FIZ>GJ*BHJ:FIJJJJJZNKK*RLK:VMKJZNKZ^OL+"P
-ML;&QLK*RL[.SM+2TM;6UMK:VM[>WN+BXN;FYNKJZN[N[O+R\O;V]OKZ^P,#`
-MP<'!PL+"P\/#Q,3$QL;&Q\?'R,C(R<G)RLK*R\O+S,S,S<W-SL[.S\_/T-#0
-MT]/3U-34U=75UM;6U]?7V-C8V=G9VMK:W-S<W=W=WM[>W]_?X.#@X>'AXN+B
-MX^/CY.3DY>7EYN;FZ.CHZNKJZ^OK[.SL[>WM[N[N[^_O\/#P\?'Q\O+R\_/S
-M]/3T]?7U]O;V]_?W^/CX^?GY^OKZ^_O[_/S\_?W]_O[^____X(`LCP```]A)
-M1$%4.,MCN$4:N.J[B)`2!M),O-ZA4GN3JD9>WZ1FP[^F^RKUC+RQ.UQ/PKC-
-M\")11EZ<GQ7BY16:WK[V)(A[JJ:QJ[VJLF_3=603MW>)VG*W6S<@&[!F!IRY
-ML:&UJW8+U,AK+;K>]8O7+6\-%65/!PG</!?&[#"QV8?7>B-<Q\T]*RSL^9U:
-M18XB&]DKLAANY7$GOA4W($9>B=9<`@GTFSN-BZ!*F1.`BAIX-([!3-R_*E?&
-M2*#'0M[_-)*1?2RR6^"<?(4K$(_?3!-?#Q>=606A)S,E@BSV8FZ'FGAPU71%
-M-PZO5DXA0[^S"".[N-E5=L$X9;)0(S?RI"(2QH$NJ)$,"2"JAS$=PM^_:I:F
-MC:+(1#MS53'#F!L(5]H&LQH?AG*JY:Y"C`SEW(F43BZ@&+F"L0+,/;5JNHJ%
-M$$MPNYQZA+B@3"5<?;_]>2=6:VA0-$"-/"\K<P,S*4QDC`=14SC7@N-OW119
-M<WX65E?]O#4J%JP"4C-AZGHL;YTT97<_#^:T08W<QF%P"Y>15[R#0-;=W#5!
-MT8*/C<U`-?'\K8DJHBPB*AM@,6YRX]8^#;:@2^"`E;L&-G(-BSD.(V\>2_(]
-M`>(<[U,QX6-F-U,J!6JY6:<JR")N<@AJI!Y0:*,"6S3(ZGYYB"O7,JMC-W))
-M5LJL*V!O]RF;\+#RV"A/`$?CC3)%'A8)%XA?>S4N`\G5$FR90+FYBA`C#_#S
-M'<=JY$U8.IBM:,3)Q&VNO@*61#.5V%G$P\$QT*L(CL^9?-S%-V\MU(9DR"O:
-M+"V81D)C'`06R!FP,@E96.^&2UZ+4V9G$<@'6=DK<PZ2F/BYVVXNTH+F\2QF
-MT_-XC-PAI<[,)&G@?0Q)]DJP/!L;YV10C$N>@0@U<PE-6:D#-?*@`GLVHGB8
-M"J$F,21"!;8)LS#)ZD:=VS^SO+BTO+:AN;-[XK1I^K)LK"D@5TI"T^3-*B[1
-M>@U8232;A[<89N;V`@C=S1@+"[GI(M+JNB&F"G+RRJK*:AJ:6IHZNK)R)L*.
-MH-30*PIS_8TR#D%->.$V6XK==RO8T*/NDZ%YBRD8[O!M:9J<G)Q<'$#`SLK&
-MQL;"PJY0?6(.N-BLXMT#+XD*6;40Y>6^6&D>JZB,U``IJ;U@@5UN[&I+C\`-
-M=6%B8&0``D9F9A86%C9.55$S<$3?V.S!D;89YL.;^0;(I?K)^57)\0G%O0<@
-M.7W%BE4K%FZ#&^G)Q,3$"`10@UG8>!3`!>GEA<O7+EUT#>[.9<17%$W<[)P\
-MO+P\W-Q@@E-$L>X&A77/S5UKYDUN+,E)B@QTMM"1$Q7HQ%U/`@`VR1C"JK@]
--VP````!)14Y$KD)@@@``
-`
-end
+    my $encoded = q|iVBORw0KGgoAAAANSUhEUgAAAFIAAAAYCAMAAABeMVqjAAAAAXNSR0IArs4c6QAAApFQTFRFAgIC
+AwMDBAQEBQUFBgYGBwcHCAgICQkJCgoKCwsLDAwMDQ0NDg4ODw8PEBAQEREREhISExMTFBQUFRUV
+FhYWFxcXGBgYGRkZGhoaGxsbHh4eHx8fICAgISEhIiIiIyMjJCQkJSUlJiYmJycnKCgoKSkpKioq
+KysrLCwsLS0tLi4uLy8vMDAwMTExMjIyMzMzNTU1NjY2Nzc3ODg4OTk5Ojo6Ozs7PDw8PT09Pj4+
+Pz8/QEBAQUFBQkJCQ0NDRERERUVFSEhISUlJSkpKTU1NT09PUFBQUVFRUlJSU1NTVFRUVVVVV1dX
+WFhYWVlZW1tbXV1dXl5eX19fY2NjZGRkZmZmaGhoaWlpa2trbW1tbm5ub29vcHBwcXFxcnJydHR0
+dXV1dnZ2enp6e3t7fHx8fX19fn5+f39/gICAgYGBgoKCg4ODhYWFhoaGiIiIiYmJjIyMjY2Njo6O
+kJCQkZGRkpKSk5OTlJSUlpaWl5eXmJiYmZmZmpqam5ubnJycnZ2dnp6en5+foKCgoaGhoqKio6Oj
+pKSkpaWlpqamp6enqKioqampqqqqq6urrKysra2trq6ur6+vsLCwsbGxsrKys7OztLS0tbW1tra2
+t7e3uLi4ubm5urq6u7u7vLy8vb29vr6+wMDAwcHBwsLCw8PDxMTExsbGx8fHyMjIycnJysrKy8vL
+zMzMzc3Nzs7Oz8/P0NDQ09PT1NTU1dXV1tbW19fX2NjY2dnZ2tra3Nzc3d3d3t7e39/f4ODg4eHh
+4uLi4+Pj5OTk5eXl5ubm6Ojo6urq6+vr7Ozs7e3t7u7u7+/v8PDw8fHx8vLy8/Pz9PT09fX19vb2
+9/f3+Pj4+fn5+vr6+/v7/Pz8/f39/v7+////4IAsjwAAA9hJREFUOMtjuEUauOq7iJASBtJMvN6h
+UnuTqkZe36Rmw7+m+yr1jLyxO1xPwrjN8CJRRl6cnxXi5RWa3r72JIh7qqaxq72qsm/TdWQTt3eJ
+2nK3WzcgG7BmBpy5saG1q3YL1MhrLbre9YvXLW8NFWVPBwncPBfG7DCx2YfXeiNcx809Kyzs+Z1a
+RY4iG9krshhu5XEnvhU3IEZeidZcAgn0mzuNi6BKmROAihp4NI7BTNy/KlfGSKDHQt7/NJKRfSyy
+W+CcfIUrEI/fTBNfDxedWQWhJzMlgiz2Ym6Hmnhw1XRFNw6vVk4hQ7+zCCO7uNlVdsE4ZbJQIzfy
+pCISxoEuqJEMCSCqhzEdwt+/apamjaLIRDtzVTHDmBsIV9oGsxofhnKq5a5CjAzl3ImUTi6gGLmC
+sQLMPbVquoqFEEtwu5x6hLigTCVcfb/9eSdWa2hQNECNPC8rcwMzKUxkjAdRUzjXguNv3RRZc34W
+Vlf9vDUqFqwCUjNh6nosb500ZXc/D+a0QY3cxmFwC5eRV7yDQNbd3DVB0YKPjc1ANfH8rYkqoiwi
+KhtgMW5y49Y+DbagS+CAlbsGNnINizkOI28eS/I9AeIc71Mx4WNmN1MqBWq5WacqyCJucghqpB5Q
+aKMCWzTI6n55iCvXMqtjN3JJVsqsK2Bv9ymb8LDy2ChPAEfjjTJFHhYJF4hfezUuA8nVEmyZQLm5
+ihAjD/DzHcdq5E1YOpitaMTJxG2uvgKWRDOV2FnEw8Ex0KsIjs+ZfNzFN28t1IZkyCvaLC2YRkJj
+HAQWyBmwMglZWO+GS16LU2ZnEcgHWdkrcw6SmPi5224u0oLm8Sxm0/N4jNwhpc7MJGngfQxJ9kqw
+PBsb52RQjEuegQg1cwlNWakDNfKgAns2oniYCqEmMSRCBbYJszDJ6kad2z+zvLi0vLahubN74rRp
++rJsrCkgV0pC0+TNKi7Reg1YSTSbh7cYZub2AgjdzRgLC7npItLquiGmCnLyyqrKahqaWpo6urJy
+JsKOoNTQKwpz/Y0yDkFNeOE2W4rddyvY0KPuk6F5iykY7vBtaZqcnJxcHEDAzsrGxsbCwq5QfWIO
+uNis4t0DL4kKWbUQ5eW+WGkeq6iM1AApqb1ggV1u7GpLj8ANdWFiYGQAAkZmZhYWFjZOVVEzcETf
+2OzBkbYZ5sOb+QbIpfrJ+VXJ8QnFvQcgOX3FilUrFm6DG+nJxMTECARQg1nYeBTABenlhcvXLl10
+De7OZcRXFE3c7Jw8vLw83NxgglNEse4GhXXPzV1r5k1uLMlJigx0ttCRExXoxF1PAgA2yRjCqrg9
+2wAAAABJRU5ErkJggg==
 |;
-    my ( $string, $filename, $mode ) = uudecode($uuencoded);
-    outs_raw $string;
+    outs_raw decode_base64($encoded);
 };
 
 template 'images_favicon' => sub {
     my $self      = shift;
-    my $uuencoded = q|begin 644 favicon.png
-MB5!.1PT*&@H````-24A$4@```!`````0"`,````H+0]3`````7-21T(`KLX<
-MZ0```#-03%1%.```!0@$%A@5'A\=(2(@)B@F+"TK,3,P.STZ1DA%3$U+6%I7
-M96=D>'EWA(:#GJ"=S,[+:G'V<@````%T4DY3`$#FV&8```!L241!5!C3=8]9
-M#L(P#`6]KRGM_4\+A1`5!._'&GLLV0!_<L17HW7K*^]NXW-!;G(QCN$QU')Q
-M&VZ>S(L5Q0$4=;*@/FU!.4LQ6KU<QH<8M!B*,*!1*\/,(S*=SAGA.SSFYLJ\
-=Q*6[PH3\U]MW>U,"XTMI(T<`````245.1*Y"8((`
-`
-end
+    my $encoded = q|iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAAXNSR0IArs4c6QAAADNQTFRFOAAA
+BQgEFhgVHh8dISIgJigmLC0rMTMwOz06RkhFTE1LWFpXZWdkeHl3hIaDnqCdzM7LanH2cgAAAAF0
+Uk5TAEDm2GYAAABsSURBVBjTdY9ZDsIwDAW9rynt/U8LhRAVBO/HGnss2QB/csRXo3XrK+9u43NB
+bnIxjuEx1HJxG26ezIsVxQEUdbKgPm1BOUsxWr1cxocYtBiKMKBRK8PMIzKdzhnhOzzm5sq8xKW7
+woT819t3e1MC40tpI0cAAAAASUVORK5CYII=
 |;
-    my ( $string, $filename, $mode ) = uudecode($uuencoded);
-    outs_raw $string;
+    outs_raw decode_base64($encoded);
 };
 
 __END__
