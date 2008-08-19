@@ -1,5 +1,8 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
+0.40
+     - improve the test suite (patch by markf)
+
 0.39 Tue Aug 19 08:27:37 BST 2008
      - make a single key from the license text and the license url
        from resources instead of displaying both seperately (patch
