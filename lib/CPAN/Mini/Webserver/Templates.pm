@@ -278,18 +278,19 @@ private template 'authorinfo' => sub {
     my ( $self, $author ) = @_;
 
     my $pauseid = $author->pauseid;
-    my $email = $author->email;
-    my $url = $author->can('homepage') ? $author->homepage : undef;
-    my $prefix = 'id'                   . '/' .
-                 substr($pauseid, 0, 1) . '/' .
-                 substr($pauseid, 0, 2) . '/' .
-                 $pauseid;
+    my $email   = $author->email;
+    my $url     = $author->can('homepage') ? $author->homepage : undef;
+    my $prefix
+        = 'id' . '/'
+        . substr( $pauseid, 0, 1 ) . '/'
+        . substr( $pauseid, 0, 2 ) . '/'
+        . $pauseid;
 
-    h2 { "Links" };
+    h2 {"Links"};
     ul {
         li {
             a {
-                attr { href => "http://backpan.perl.org/authors/id/$prefix" };
+                attr { href => "http://backpan.perl.org/authors/$prefix" };
                 'BackPAN';
             };
         }
@@ -307,13 +308,16 @@ private template 'authorinfo' => sub {
         }
         li {
             a {
-                attr { href => "http://cpantesters.perl.org/author/$pauseid" };
+                attr {
+                    href => "http://cpantesters.perl.org/author/$pauseid.html" };
                 'CPANTesters';
             };
         }
         li {
             a {
-                attr { href => "http://bbbike.radzeit.de/~slaven/cpantestersmatrix.cgi?author=$pauseid" };
+                attr { href =>
+                        "http://bbbike.radzeit.de/~slaven/cpantestersmatrix.cgi?author=$pauseid"
+                };
                 'Test Matrix';
             };
         }

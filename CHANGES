@@ -6,6 +6,8 @@ Revision history for Perl module CPAN::Mini::Webserver:
      - index CamelCase distributions and modules so that you can
        search for both "camel", "case" and "camelcase"
      - use PAUSE names if 00whois.xml is mirrored (patch by martijn)
+     - add info like email/homepage and some links to other 
+       cpan-related pages for the author (patch by martijn)
 
 0.39 Tue Aug 19 08:27:37 BST 2008
      - make a single key from the license text and the license url
