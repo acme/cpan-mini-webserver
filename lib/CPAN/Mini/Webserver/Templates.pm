@@ -447,7 +447,55 @@ private template 'install' => sub {
             button {$action} $action;
         };
     };
+};
 
+private template 'dist_links' => sub {
+    my ( $self, $distribution ) = @_;
+    my $distname = $distribution->dist;
+
+    h2 {'Links'};
+    ul {
+        li {
+            outs "Test ";
+            a {
+                attr { href =>
+                        "http://bbbike.radzeit.de/~slaven/cpantestersmatrix.cgi?dist=$distname"
+                };
+                "matrix";
+            };
+            outs " and ";
+            a {
+                attr { href =>
+                        "http://cpantesters.perl.org/show/$distname.html" };
+                "reports";
+            };
+        }
+        li {
+            a {
+                attr { href =>
+                        "http://rt.cpan.org/NoAuth/Bugs.html?Dist=$distname"
+                };
+                "RT";
+            };
+            outs " (or via ";
+            a {
+                attr { href => "mailto:bug-$distname\@rt.cpan.org" } "email";
+            };
+            outs ")";
+        }
+        li {
+            a {
+                attr { href => "http://annocpan.org/dist/$distname" };
+                "AnnoCPAN";
+            }
+        }
+        li {
+            a {
+                attr { href => "http://cpanratings.perl.org/d/$distname" };
+                "CPAN Ratings";
+            }
+        }
+    }
 };
 
 template 'distribution' => sub {
@@ -490,7 +538,8 @@ template 'distribution' => sub {
                     show( 'metadata',     $meta );
                     show( 'dependencies', $meta, $pcp );
                     show( 'download',     $author, $distribution );
-                    show( 'install', $author, $distribution, \@filenames );
+                    show( 'install',    $author, $distribution, \@filenames );
+                    show( 'dist_links', $distribution );
                 };
                 div {
                     attr { class => 'span-24 last' };
