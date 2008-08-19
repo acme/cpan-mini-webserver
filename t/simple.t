@@ -11,7 +11,7 @@ use WebserverTester;
 use CPAN::Mini::Webserver;
 
 eval {
-    my $server = CPAN::Mini::Webserver->new();
+    my $server = CPAN::Mini::Webserver->new(2963);
     $server->after_setup_listener;
 };
 
