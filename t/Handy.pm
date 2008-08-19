@@ -24,7 +24,6 @@ sub html_page_ok {
     my $response = make_request($path, @_);
     
     # basic "is my response correct" tests
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
     $Tester->like($response, qr/200 OK/, "page returned 200 OK");
     $Tester->like($response, qr{Content-Type: text/html}, "html mime");
     $Tester->like($response, qr/<html/, "page had a html tag in it");
@@ -33,12 +32,36 @@ sub html_page_ok {
 }
 push @EXPORT, "html_page_ok";
 
+sub css_ok {
+    my $path = shift;
+    my $response = make_request($path, @_);
+    
+    # basic "is my response correct" tests
+    $Tester->like($response, qr/200 OK/, "page returned 200 OK");
+    $Tester->like($response, qr{Content-Type: text/css}, "css mime");
+    
+    return $response;
+}
+push @EXPORT, "css_ok";
+
+sub png_ok {
+    my $path = shift;
+    my $response = make_request($path, @_);
+    
+    # basic "is my response correct" tests
+    $Tester->like($response, qr/200 OK/, "page returned 200 OK");
+    $Tester->like($response, qr{Content-Type: image/png}, "css mime");
+    
+    return $response;
+}
+push @EXPORT, "png_ok";
+
+
 sub redirect_ok {
     my $location = shift;
     my $path = shift;
     my $response = make_request($path, @_);
     
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
     $Tester->like( $response, qr{HTTP/1.0 302 OK}, "returned 302");
     $Tester->like( $response, qr{Status: 302 Found}, "status is 302 found");
     $Tester->like( $response,
