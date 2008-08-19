@@ -56,6 +56,19 @@ sub png_ok {
 }
 push @EXPORT, "png_ok";
 
+sub opensearch_ok {
+    my $path = shift;
+    my $response = make_request($path, @_);
+    
+    # basic "is my response correct" tests
+    $Tester->like($response, qr/200 OK/, "page returned 200 OK");
+    $Tester->like($response, qr{Content-Type: application/opensearchdescription\+xml}, "opensearch mime");
+    $Tester->like($response, qr/<\?xml/, "xml tag");
+    
+    return $response;
+}
+push @EXPORT, "opensearch_ok";
+
 
 sub redirect_ok {
     my $location = shift;

@@ -12,7 +12,7 @@ eval {
 if ( $@ =~ /Please set up minicpan/ ) {
     plan skip_all => "CPAN::Mini mirror must be installed for testing: $@";
 } else {
-    plan tests => 54;
+    plan tests => 57;
 }
 
 setup_server();
@@ -75,3 +75,5 @@ $html = css_ok('/static/css/ie.css' );
 png_ok('/static/images/logo.png' );
 png_ok('/static/images/favicon.png' );
 png_ok('favicon.ico' );
+
+$html = opensearch_ok('/static/xml/opensearch.xml');
