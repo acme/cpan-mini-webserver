@@ -30,6 +30,16 @@ copy of CPAN using minicpan.  Then you may run minicpan_webserver and
 search and browse Mini CPAN at http://localhost:2963/. The listening
 port can be configured with C<--port> command line option.
 
+=head1 MINICPAN CONFIGURATION
+
+CPAN::Mini::Webserver can optionally return the real names of authors
+instead of an ascii representation of them. This depends on the file
+'authors/00whois.xml' being mirrored from CPAN. CPAN::Mini doesn't do
+this by default. You can tell it to mirror this file by putting the
+following line in your .minicpanrc:
+
+  also_mirror: authors/00whois.xml
+
 =head1 AUTHOR
 
 Leon Brocard <acme@astray.com>

@@ -11,9 +11,15 @@ use WebserverTester;
 
 use CPAN::Mini::Webserver;
 
+my $name;
 eval {
     my $server = CPAN::Mini::Webserver->new(2963);
     $server->after_setup_listener;
+    if ($server->author_type eq 'Whois') {
+        $name = 'Léon Brocard';
+    } else {
+        $name = 'Leon Brocard';
+    }
 };
 
 if ( $@ =~ /Please set up minicpan/ ) {
@@ -34,30 +40,30 @@ like( $html, qr/Welcome to CPAN::Mini::Webserver/ );
 $html = html_page_ok('/search/', q => "buffy");
 like( $html, qr/Search for .buffy./ );
 like( $html, qr/Acme-Buffy-1.5/ );
-like( $html, qr/Léon Brocard/ );
+like( $html, qr/$name/ );
 
 # show Leon
 $html = html_page_ok('~lbrocard/', 'q' => undef );
-like( $html, qr/Léon Brocard/ );
+like( $html, qr/$name/ );
 like( $html, qr/Acme-Buffy-1.5/ );
 like( $html, qr/Tie-GHash-0.12/ );
 
 # Show Acme-Buffy-1.5
 $html = html_page_ok('~lbrocard/Acme-Buffy-1.5/');
-like( $html, qr/Léon Brocard &gt; Acme-Buffy-1.5/ );
+like( $html, qr/$name &gt; Acme-Buffy-1.5/ );
 like( $html, qr/CHANGES/ );
 like( $html, qr/demo_buffy\.pl/ );
 
 # Show Acme-Buffy-1.5 CHANGES
 $html = html_page_ok('~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/CHANGES');
 like( $html,
-    qr{Léon Brocard &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/CHANGES} );
+    qr{$name &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/CHANGES} );
 like( $html, qr/Revision history for Perl extension Buffy/ );
 
 # Show Acme-Buffy-1.5 CHANGES Buffy.pm
 $html = html_page_ok('~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm');
 like( $html,
-    qr{Léon Brocard &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/lib/Acme/Buffy.pm}
+    qr{$name &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/lib/Acme/Buffy.pm}
 );
 like( $html, qr{An encoding scheme for Buffy the Vampire Slayer fans} );
 like( $html, qr{See raw file} );
@@ -66,7 +72,7 @@ like( $html, qr{See raw file} );
 $html = html_page_ok(
     '/raw/~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm');
 like( $html,
-    qr{Léon Brocard &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/lib/Acme/Buffy.pm}
+    qr{$name &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/lib/Acme/Buffy.pm}
 );
 like( $html, qr{An encoding scheme for Buffy the Vampire Slayer fans} );
 
