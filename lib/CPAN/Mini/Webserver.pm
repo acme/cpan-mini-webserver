@@ -8,6 +8,7 @@ use Module::InstalledVersion;
 use Moose;
 use Parse::CPAN::Authors;
 use Parse::CPAN::Packages;
+use Parse::CPAN::Whois;
 use Parse::CPAN::Meta;
 use Pod::Simple::HTML;
 use Path::Class;
@@ -27,7 +28,8 @@ has 'hostname'            => ( is => 'rw' );
 has 'cgi'                 => ( is => 'rw', isa => 'CGI' );
 has 'directory'           => ( is => 'rw', isa => 'Path::Class::Dir' );
 has 'scratch'             => ( is => 'rw', isa => 'Path::Class::Dir' );
-has 'parse_cpan_authors'  => ( is => 'rw', isa => 'Parse::CPAN::Authors' );
+has 'author_type'         => ( is => 'rw' );
+has 'parse_cpan_authors'  => ( is => 'rw' );
 has 'parse_cpan_packages' => ( is => 'rw', isa => 'Parse::CPAN::Packages' );
 has 'pauseid'             => ( is => 'rw' );
 has 'distvname'           => ( is => 'rw' );
@@ -91,6 +93,22 @@ sub checksum_data_for_author {
     return $cksum;
 }
 
+sub send_http_header {
+    my $self = shift;
+    my $code = shift;
+    my %params = @_;
+    my $cgi = $self->cgi;
+
+    if ( ( defined $params{-charset} and $params{-charset} eq 'utf-8'    ) or
+         ( defined $params{-type}    and $params{-type}    eq 'text/xml' ) ) {
+        binmode (STDOUT, ":encoding(utf-8)");
+    } elsif (defined $params{-type}) {
+        binmode STDOUT, ":raw";
+    }
+    print "HTTP/1.0 $code\015\012";
+    print $cgi->header(%params);
+}
+
 # this is a hook that HTTP::Server::Simple calls after setting up the
 # listening socket. we use it load the indexes
 sub after_setup_listener {
@@ -107,8 +125,18 @@ sub after_setup_listener {
             && ( -f $authors_filename )
             && ( -f $packages_filename );
     my $cache = App::Cache->new( { ttl => 60 * 60 } );
-    my $parse_cpan_authors = $cache->get_code( 'parse_cpan_authors',
-        sub { Parse::CPAN::Authors->new( $authors_filename->stringify ) } );
+    
+    my $whois_filename = file( $directory, 'authors', '00whois.xml' );
+    my $parse_cpan_authors;
+    if ( -f $whois_filename) {
+        $self->author_type('Whois');
+        $parse_cpan_authors = $cache->get_code( 'parse_cpan_whois',
+            sub { Parse::CPAN::Whois->new ( $whois_filename->stringify ) } );
+    } else {
+        $self->author_type('Authors');
+        $parse_cpan_authors = $cache->get_code( 'parse_cpan_authors',
+            sub { Parse::CPAN::Authors->new( $authors_filename->stringify ) } );
+    }
     my $parse_cpan_packages = $cache->get_code( 'parse_cpan_packages',
         sub { Parse::CPAN::Packages->new( $packages_filename->stringify ) } );
 
@@ -136,8 +164,8 @@ sub handle_request {
     my ( $self, $cgi ) = @_;
     eval { $self->_handle_request($cgi) };
     if ($@) {
-        print "HTTP/1.0 500\r\n", $cgi->header,
-            "<h1>Internal Server Error</h1>", $cgi->escapeHTML($@);
+        $self->send_http_header(500);
+        print "<h1>Internal Server Error</h1>", $cgi->escapeHTML($@);
     }
 }
 
@@ -215,8 +243,7 @@ sub not_found_page {
     my $self = shift;
     my $q    = shift;
     my ( $authors, $dists, $packages ) = $self->_do_search($q);
-    print "HTTP/1.0 404 Not found\r\n";
-    print $self->cgi->header;
+    $self->send_http_header(404, -charset => 'utf-8');
     print Template::Declare->show(
         '404',
         {   parse_cpan_authors => $self->parse_cpan_authors,
@@ -231,28 +258,25 @@ sub not_found_page {
 sub redirect {
     my $self = shift;
     my $url  = shift;
-    print "HTTP/1.0 302 OK\r\n";
+
+    print "HTTP/1.0 302\015\012";
     print $self->cgi->redirect($url);
 
 }
 
 sub index_page {
     my $self = shift;
-    my $cgi  = $self->cgi;
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header;
+    $self->send_http_header(200, -charset => 'utf-8');
     print Template::Declare->show('index');
 }
 
 sub search_page {
     my $self = shift;
-    my $cgi  = $self->cgi;
-    my $q    = $cgi->param('q');
+    my $q    = $self->cgi->param('q');
 
     my ( $authors, $dists, $packages ) = $self->_do_search($q);
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header;
+    $self->send_http_header(200, -charset => 'utf-8');
     print Template::Declare->show(
         'search',
         {   parse_cpan_authors => $self->parse_cpan_authors,
@@ -269,10 +293,11 @@ sub _do_search {
     my $q       = shift;
     my $index   = $self->index;
     my @results = $index->search($q);
+    my $au_type = $self->author_type;
     my ( @authors, @distributions, @packages );
 
     if ( $q !~ /(?:::|-)/ ) {
-        @authors = uniq grep { ref($_) eq 'Parse::CPAN::Authors::Author' }
+        @authors = uniq grep { ref($_) eq "Parse::CPAN::${au_type}::Author" }
             @results;
     }
     if ( $q !~ /::/ ) {
@@ -307,7 +332,6 @@ sub _do_search {
 
 sub author_page {
     my $self    = shift;
-    my $cgi     = $self->cgi;
     my $pauseid = $self->pauseid;
 
     my @distributions = sort { $a->distvname cmp $b->distvname }
@@ -323,8 +347,7 @@ sub author_page {
         }
     }
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header;
+    $self->send_http_header(200, -charset => 'utf-8');
     print Template::Declare->show(
         'author',
         {   author        => $author,
@@ -337,7 +360,6 @@ sub author_page {
 
 sub distribution_page {
     my $self      = shift;
-    my $cgi       = $self->cgi;
     my $pauseid   = $self->pauseid;
     my $distvname = $self->distvname;
 
@@ -359,8 +381,7 @@ sub distribution_page {
 
     my @filenames = $self->list_files($distribution);
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header;
+    $self->send_http_header(200, -charset => 'utf-8');
     print Template::Declare->show(
         'distribution',
         {   author       => $self->parse_cpan_authors->author( uc $pauseid ),
@@ -376,8 +397,7 @@ sub distribution_page {
 
 sub pod_page {
     my $self      = shift;
-    my $cgi       = $self->cgi;
-    my ($pkgname) = $cgi->keywords;
+    my ($pkgname) = $self->cgi->keywords;
 
     my $m = $self->parse_cpan_packages->package($pkgname);
     my $d = $m->distribution;
@@ -390,7 +410,6 @@ sub pod_page {
 
 sub install_page {
     my $self      = shift;
-    my $cgi       = $self->cgi;
     my $pauseid   = $self->pauseid;
     my $distvname = $self->distvname;
 
@@ -401,8 +420,7 @@ sub install_page {
     my $file
         = file( $self->directory, 'authors', 'id', $distribution->prefix );
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header;
+    $self->send_http_header(200);
     printf '<html><body><h1>Installing %s</h1><pre>',
         $distribution->distvname;
 
@@ -417,7 +435,6 @@ sub install_page {
 
 sub file_page {
     my $self      = shift;
-    my $cgi       = $self->cgi;
     my $pauseid   = $self->pauseid;
     my $distvname = $self->distvname;
     my $filename  = $self->filename;
@@ -443,8 +460,7 @@ sub file_page {
 #   $html
 #       =~ s/^(.*%3A%3A.*)$/my $x = $1; ($x =~ m{indexItem}) ? 1 : $x =~ s{%3A%3A}{\/}g; $x/gme;
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header;
+    $self->send_http_header(200, -charset => 'utf-8');
     print Template::Declare->show(
         'file',
         {   author       => $self->parse_cpan_authors->author( uc $pauseid ),
@@ -460,7 +476,6 @@ sub file_page {
 
 sub download_file {
     my $self      = shift;
-    my $cgi       = $self->cgi;
     my $pauseid   = $self->pauseid;
     my $distvname = $self->distvname;
     my $filename  = $self->filename;
@@ -475,19 +490,17 @@ sub download_file {
     if ($filename) {
         my $contents
             = $self->get_file_from_tarball( $distribution, $filename );
-        print "HTTP/1.0 200 OK\r\n";
-        print $cgi->header(
-            -content_type   => 'text/plain',
+        $self->send_http_header(200,
+            -content_type => 'text/plain',
             -content_length => length $contents,
         );
         print $contents;
     } else {
         open my $fh, $file or return $self->not_found_page( $self->filename );
 
-        print "HTTP/1.0 200 OK\r\n";
         my $content_type
             = $file =~ /zip/ ? 'application/zip' : 'application/x-gzip';
-        print $cgi->header(
+        $self->send_http_header(200,
             -content_type        => $content_type,
             -content_disposition => "attachment; filename=" . $file->basename,
             -content_length      => -s $fh,
@@ -500,7 +513,6 @@ sub download_file {
 
 sub raw_page {
     my $self      = shift;
-    my $cgi       = $self->cgi;
     my $pauseid   = $self->pauseid;
     my $distvname = $self->distvname;
     my $filename  = $self->filename;
@@ -546,8 +558,7 @@ sub raw_page {
         $html = join '', @lines;
     }
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header;
+    $self->send_http_header(200, -charset => 'utf-8');
     print Template::Declare->show(
         'raw',
         {   author       => $self->parse_cpan_authors->author( uc $pauseid ),
@@ -574,8 +585,7 @@ sub dist_page {
 
 sub package_page {
     my $self = shift;
-    my $cgi  = $self->cgi;
-    my $path = $cgi->path_info();
+    my $path = $self->cgi->path_info();
     my ( $pauseid, $distvname, $package )
         = $path =~ m{^/package/(.+?)/(.+?)/(.+?)/$};
 
@@ -622,19 +632,15 @@ sub list_files {
 
 sub css_screen_page {
     my $self = shift;
-    my $cgi  = $self->cgi;
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header( -type => 'text/css', -expires => '+1d' );
+    $self->send_http_header( 200, -type => 'text/css', -expires => '+1d' );
     print Template::Declare->show('css_screen');
 }
 
 sub css_print_page {
     my $self = shift;
-    my $cgi  = $self->cgi;
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header( -type => 'text/css', -expires => '+1d' );
+    $self->send_http_header( 200, -type => 'text/css', -expires => '+1d' );
     print Template::Declare->show('css_print');
 }
 
@@ -642,26 +648,21 @@ sub css_ie_page {
     my $self = shift;
     my $cgi  = $self->cgi;
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header( -type => 'text/css', -expires => '+1d' );
+    $self->send_http_header( 200, -type => 'text/css', -expires => '+1d' );
     print Template::Declare->show('css_ie');
 }
 
 sub images_logo_page {
     my $self = shift;
-    my $cgi  = $self->cgi;
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header( -type => 'image/png', -expires => '+1d' );
+    $self->send_http_header( 200, -type => 'image/png', -expires => '+1d' );
     print Template::Declare->show('images_logo');
 }
 
 sub images_favicon_page {
     my $self = shift;
-    my $cgi  = $self->cgi;
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header( -type => 'image/png', -expires => '+1d' );
+    $self->send_http_header( 200, -type => 'image/png', -expires => '+1d' );
     print Template::Declare->show('images_favicon');
 }
 
@@ -669,8 +670,7 @@ sub opensearch_page {
     my $self = shift;
     my $cgi  = $self->cgi;
 
-    print "HTTP/1.0 200 OK\r\n";
-    print $cgi->header(
+    $self->send_http_header( 200,
         -type    => 'application/opensearchdescription+xml',
         -expires => '+1d'
     );

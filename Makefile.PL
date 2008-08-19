@@ -18,6 +18,7 @@ WriteMakefile(
         'Module::InstalledVersion' => '0',
         'Moose'                    => '0',
         'Parse::CPAN::Authors'     => '0',
+        'Parse::CPAN::Whois  '     => '0.02',
         'Parse::CPAN::Meta'        => '0',
         'Parse::CPAN::Packages'    => '2.28',
         'Path::Class'              => '0',

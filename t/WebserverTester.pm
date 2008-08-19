@@ -7,6 +7,11 @@ use warnings;
 use Test::Builder;
 
 use IO::Capture::Stdout;
+sub IO::Capture::Tie_STDx::BINMODE {
+    # this is so we can call binmode to do utf-8 output
+    # in the real world and still use IO::Capture::Stdout here.
+}
+
 use HTTP::Response;
 use CGI;
 
