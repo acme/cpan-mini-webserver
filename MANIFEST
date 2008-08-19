@@ -8,4 +8,5 @@ MANIFEST			This list of files
 README
 t/pod.t
 t/simple.t
+t/WebserverTester.pm
 
