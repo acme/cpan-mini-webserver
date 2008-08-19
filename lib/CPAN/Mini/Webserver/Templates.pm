@@ -99,21 +99,15 @@ private template distribution_file => sub {
         = ( $filename =~ /^$distvname\/(.*)$/ )
         ? $1
         : $filename;
-    my $class
-        = ( $filename =~ m{/(lib|t|inc)/} )
-        ? $1
-        : 'notcode';
     my $href
         = ( $filename =~ /\.(pm|PL|pod)$/ )
         ? "/~$pauseid/$distvname/$filename"
         : "/raw/~$pauseid/$distvname/$filename";
     row {
         cell {
-            attr { class => $class } if $class;
             a {
                 attr { href => $href };
                 span {
-                    attr { class => $class } if $class;
                     $display_filename;
                 };
             };
@@ -498,6 +492,19 @@ private template 'dist_links' => sub {
     }
 };
 
+template 'filelist' => sub {
+    my ( $self, $pauseid, $distvname, $label, $filenames ) = @_;
+    h2 {$label};
+    outs_raw '<table>';
+    foreach my $filename (@$filenames) {
+        show(
+            distribution_file => $pauseid,
+            $distvname, $filename
+        );
+    }
+    outs_raw '</table>';
+};
+
 template 'distribution' => sub {
     my ( $self, $arguments ) = @_;
     my $author       = $arguments->{author};
@@ -524,14 +531,29 @@ template 'distribution' => sub {
                 div {
                     attr { class => 'span-18 last' };
 
-                    outs_raw '<table>';
-                    foreach my $filename (@filenames) {
-                        show(
-                            distribution_file => $pauseid,
-                            $distvname, $filename
-                        );
+                    #                    outs_raw '<table>';
+                    my ( @code, @test, @other );
+                    while ( $_ = shift @filenames ) {
+                        if ( m{(?:/bin/|\.p(?:m|l)$)} and not m{/inc/} ) {
+                            push @code, $_;
+                        } elsif (/\.t$/) {
+                            push @test, $_;
+                        } else {
+                            push @other, $_;
+                        }
                     }
-                    outs_raw '</table>';
+                    show( 'filelist', $pauseid, $distvname, 'Code',  \@code );
+                    show( 'filelist', $pauseid, $distvname, 'Tests', \@test );
+                    show( 'filelist', $pauseid, $distvname, 'Other',
+                        \@other );
+
+                   #                    foreach my $filename (@filenames) {
+                   #                        show(
+                   #                            distribution_file => $pauseid,
+                   #                            $distvname, $filename
+                   #                        );
+                   #                    }
+                   #                    outs_raw '</table>';
                 };
                 div {
                     attr { class => 'span-6 last' };
@@ -917,10 +939,6 @@ div#searchbar {min-height:10em;display:table-cell;vertical-align:middle;}
 .number {color:#B452CD;}
 .single {color:#CD5555;}
 .double {color:#CD5555;}
-.inc {display:none;}
-.lib {color:#000099;}
-.t {color:#000066;}
-.notcode {color:#000033;}
 
 /* buttons */
 a.button, button {display:block;float:left;margin:0 0.583em 0.667em 0;padding:5px 10px 5px 7px;border:1px solid #dedede;border-top:1px solid #eee;border-left:1px solid #eee;background-color:#f5f5f5;font-family:"Lucida Grande", Tahoma, Arial, Verdana, sans-serif;font-size:100%;line-height:130%;text-decoration:none;font-weight:bold;color:#565656;cursor:pointer;}

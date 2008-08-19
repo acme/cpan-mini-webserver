@@ -49,8 +49,3 @@ div#searchbar {
 .single  { color: #CD5555;}
 .double  { color: #CD5555;}
 
-/* for the distribution page */ 
-.inc { display:none; }
-.lib { color:#000099; }
-.t { color:#000066; }
-.notcode { color:#000033; }

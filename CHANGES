@@ -20,7 +20,12 @@ Revision history for Perl module CPAN::Mini::Webserver:
        and remove redundant filename prefix (patch by jesse)
      - require Parse::CPAN::Packages 2.28 to reduce warnings (patch
        by tokuhirom)
+     - take 'use CPAN::Mini::Webserver' out of eval() so the 
+       compliation failure is more obvious and doesn't cause issues
+       (patch by miyagawa)
      - add links to cpantesters, cpanforum, cpanratings and RT
+       (patch by martijn)
+     - while showing distribution, split up files into categories
        (patch by martijn)
 
 0.38 Mon Aug 18 09:15:25 BST 2008
