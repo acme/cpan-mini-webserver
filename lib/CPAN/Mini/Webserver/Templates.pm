@@ -1021,8 +1021,9 @@ hr {margin:-8px auto 11px;}
 };
 
 template 'images_logo' => sub {
-    my $self      = shift;
-    my $encoded = q|iVBORw0KGgoAAAANSUhEUgAAAFIAAAAYCAMAAABeMVqjAAAAAXNSR0IArs4c6QAAApFQTFRFAgIC
+    my $self = shift;
+    my $encoded
+        = q|iVBORw0KGgoAAAANSUhEUgAAAFIAAAAYCAMAAABeMVqjAAAAAXNSR0IArs4c6QAAApFQTFRFAgIC
 AwMDBAQEBQUFBgYGBwcHCAgICQkJCgoKCwsLDAwMDQ0NDg4ODw8PEBAQEREREhISExMTFBQUFRUV
 FhYWFxcXGBgYGRkZGhoaGxsbHh4eHx8fICAgISEhIiIiIyMjJCQkJSUlJiYmJycnKCgoKSkpKioq
 KysrLCwsLS0tLi4uLy8vMDAwMTExMjIyMzMzNTU1NjY2Nzc3ODg4OTk5Ojo6Ozs7PDw8PT09Pj4+
@@ -1058,18 +1059,14 @@ De7OZcRXFE3c7Jw8vLw83NxgglNEse4GhXXPzV1r5k1uLMlJigx0ttCRExXoxF1PAgA2yRjCqrg9
 };
 
 template 'images_favicon' => sub {
-    my $self      = shift;
-    my $uuencoded = q|begin 644 favicon.png
-    MB5!.1PT*&@H````-24A$4@```!`````0"`,````H+0]3`````7-21T(`KLX<
-    MZ0```#-03%1%.```!0@$%A@5'A\=(2(@)B@F+"TK,3,P.STZ1DA%3$U+6%I7
-    M96=D>'EWA(:#GJ"=S,[+:G'V<@````%T4DY3`$#FV&8```!L241!5!C3=8]9
-    M#L(P#`6]KRGM_4\+A1`5!._'&GLLV0!_<L17HW7K*^]NXW-!;G(QCN$QU')Q
-    M&VZ>S(L5Q0$4=;*@/FU!.4LQ6KU<QH<8M!B*,*!1*\/,(S*=SAGA.SSFYLJ\
-    =Q*6[PH3\U]MW>U,"XTMI(T<`````245.1*Y"8((`
-    `
-    end
-    |;
-    $uuencoded =~ s/^\s+//mg;
+    my $self = shift;
+    my $encoded
+        = q|iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAAXNSR0IArs4c6QAAADNQTFRFOAAA
+BQgEFhgVHh8dISIgJigmLC0rMTMwOz06RkhFTE1LWFpXZWdkeHl3hIaDnqCdzM7LanH2cgAAAAF0
+Uk5TAEDm2GYAAABsSURBVBjTdY9ZDsIwDAW9rynt/U8LhRAVBO/HGnss2QB/csRXo3XrK+9u43NB
+bnIxjuEx1HJxG26ezIsVxQEUdbKgPm1BOUsxWr1cxocYtBiKMKBRK8PMIzKdzhnhOzzm5sq8xKW7
+woT819t3e1MC40tpI0cAAAAASUVORK5CYII=
+|;
     outs_raw decode_base64($encoded);
 };
 
