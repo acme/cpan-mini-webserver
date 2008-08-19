@@ -19,8 +19,40 @@ sub setup_server {
 };
 push @EXPORT, "setup_server";
 
-sub page {
+sub html_page_ok {
     my $path = shift;
+    my $response = make_request($path, @_);
+    
+    # basic "is my response correct" tests
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    $Tester->like($response, qr/200 OK/, "page returned 200 OK");
+    $Tester->like($response, qr{Content-Type: text/html}, "html mime");
+    $Tester->like($response, qr/<html/, "page had a html tag in it");
+    
+    return $response;
+}
+push @EXPORT, "html_page_ok";
+
+sub redirect_ok {
+    my $location = shift;
+    my $path = shift;
+    my $response = make_request($path, @_);
+    
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    $Tester->like( $response, qr{HTTP/1.0 302 OK}, "returned 302");
+    $Tester->like( $response, qr{Status: 302 Found}, "status is 302 found");
+    $Tester->like( $response,
+        qr{Location: $location},
+        "went to the right place"
+    );
+    
+    return $response;
+}
+push @EXPORT, "redirect_ok";
+
+sub make_request {
+    my $path = shift;
+    
     my $cgi = CGI->new;
     $cgi->path_info($path);
     while (@_) {
@@ -28,13 +60,7 @@ sub page {
         my $value = shift;
         $cgi->param($name, $value);
     }
-    my $response = make_request($cgi);
-    return $response;
-}
-push @EXPORT, "page";
-
-sub make_request {
-    my $cgi = shift;
+    
     my $capture = IO::Capture::Stdout->new();
     $capture->start;
     $server->handle_request($cgi);
