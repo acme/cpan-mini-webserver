@@ -26,6 +26,7 @@ WriteMakefile(
         'PPI'                      => '0',
         'PPI::HTML'                => '0',
         'Search::QueryParser'      => '0',
+        'String::CamelCase'        => '0',
         'Template::Declare'        => '0.29',
         'Test::More'               => '0',
 

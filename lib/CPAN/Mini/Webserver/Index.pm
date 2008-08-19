@@ -1,6 +1,8 @@
 package CPAN::Mini::Webserver::Index;
 use Moose;
+use List::MoreUtils qw(uniq);
 use Search::QueryParser;
+use String::CamelCase qw(wordsplit);
 
 has 'index' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 
@@ -22,12 +24,23 @@ sub create_index {
     }
 
     foreach my $distribution ( $parse_cpan_packages->latest_distributions ) {
-        my @words = split '-', lc $distribution->dist;
+        my @words;
+        foreach my $word ( split '-', $distribution->dist ) {
+            push @words, $word;
+            push @words, wordsplit $word;
+        }
+        @words = map {lc} uniq @words;
+
         $self->add( $distribution, \@words );
     }
 
     foreach my $package ( $parse_cpan_packages->packages ) {
-        my @words = split '::', lc $package->package;
+        my @words;
+        foreach my $word ( split '::', $package->package ) {
+            push @words, $word;
+            push @words, wordsplit $word;
+        }
+        @words = map {lc} uniq @words;
         $self->add( $package, \@words );
     }
 
