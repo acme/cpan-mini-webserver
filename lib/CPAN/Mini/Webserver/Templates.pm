@@ -274,6 +274,52 @@ template 'search' => sub {
     };
 };
 
+private template 'authorinfo' => sub {
+    my ( $self, $author ) = @_;
+
+    my $pauseid = $author->pauseid;
+    my $email = $author->email;
+    my $url = $author->can('homepage') ? $author->homepage : undef;
+    my $prefix = 'id'                   . '/' .
+                 substr($pauseid, 0, 1) . '/' .
+                 substr($pauseid, 0, 2) . '/' .
+                 $pauseid;
+
+    h2 { "Links" };
+    ul {
+        li {
+            a {
+                attr { href => "http://backpan.perl.org/authors/id/$prefix" };
+                'BackPAN';
+            };
+        }
+        li {
+            a {
+                attr { href => "mailto:$email" };
+                $email;
+            };
+        }
+        li {
+            a {
+                attr { href => $url };
+                $url;
+            };
+        }
+        li {
+            a {
+                attr { href => "http://cpantesters.perl.org/author/$pauseid" };
+                'CPANTesters';
+            };
+        }
+        li {
+            a {
+                attr { href => "http://bbbike.radzeit.de/~slaven/cpantestersmatrix.cgi?author=$pauseid" };
+                'Test Matrix';
+            };
+        }
+    }
+};
+
 template 'author' => sub {
     my ( $self, $arguments ) = @_;
     my $author        = $arguments->{author};
@@ -288,9 +334,12 @@ template 'author' => sub {
             div {
                 attr { class => 'container' };
                 div {
-                    attr { class => 'span-24' };
+                    attr { class => 'span-24 last' };
                     show('searchbar');
                     h1 { show( 'author_link', $author ) };
+                }
+                div {
+                    attr { class => 'span-18 last' };
                     outs_raw '<table>';
                     foreach my $distribution (@distributions) {
                         row {
@@ -304,6 +353,14 @@ template 'author' => sub {
                         };
                     }
                     outs_raw '</table>';
+                }
+                div {
+                    attr { class => 'span-6 last' };
+                    show( 'authorinfo', $author );
+                };
+
+                div {
+                    attr { class => 'span-24 last' };
                     show('footer');
                 };
 
