@@ -69,7 +69,6 @@ sub opensearch_ok {
 }
 push @EXPORT, "opensearch_ok";
 
-
 sub redirect_ok {
     my $location = shift;
     my $path = shift;
@@ -85,6 +84,18 @@ sub redirect_ok {
     return $response;
 }
 push @EXPORT, "redirect_ok";
+
+sub error404_ok {
+    my $location = shift;
+    my $path = shift;
+    my $response = make_request($path, @_);
+    
+    $Tester->like( $response, qr{HTTP/1.0 404 Not found}, "returned 303");
+    
+    return $response;
+}
+push @EXPORT, "error404_ok";
+
 
 sub make_request {
     my $path = shift;

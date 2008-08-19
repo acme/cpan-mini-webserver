@@ -12,7 +12,7 @@ eval {
 if ( $@ =~ /Please set up minicpan/ ) {
     plan skip_all => "CPAN::Mini mirror must be installed for testing: $@";
 } else {
-    plan tests => 57;
+    plan tests => 58;
 }
 
 setup_server();
@@ -69,11 +69,15 @@ redirect_ok(
  '/package/lbrocard/Acme-Buffy-1.5/Acme::Buffy/'
 );
 
-$html = css_ok('/static/css/screen.css' );
-$html = css_ok('/static/css/print.css' );
-$html = css_ok('/static/css/ie.css' );
+# 'static' files
+css_ok('/static/css/screen.css' );
+css_ok('/static/css/print.css' );
+css_ok('/static/css/ie.css' );
 png_ok('/static/images/logo.png' );
 png_ok('/static/images/favicon.png' );
 png_ok('favicon.ico' );
+opensearch_ok('/static/xml/opensearch.xml');
 
-$html = opensearch_ok('/static/xml/opensearch.xml');
+# 404
+error404_ok('/this/doesnt/exist');
+
