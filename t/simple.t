@@ -1,8 +1,7 @@
 #!perl
 use strict;
 use warnings;
-use CGI;
-use IO::Capture::Stdout;
+
 use Test::More;
 use CPAN::Mini::Webserver;
 
@@ -16,9 +15,7 @@ if ( $@ =~ /Please set up minicpan/ ) {
     plan tests => 21;
 }
 
-my $server = CPAN::Mini::Webserver->new(2963);
-$server->after_setup_listener;
-
+setup_server();
 my $html;
 
 # index
@@ -73,27 +70,3 @@ like( $html, qr{Status: 302 Found} );
 like( $html,
     qr{Location: http://localhost:2963/~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm}
 );
-
-sub page {
-    my $path = shift;
-    my $cgi = CGI->new;
-    $cgi->path_info($path);
-    while (@_) {
-        my $name = shift;
-        my $value = shift;
-        $cgi->param($name, $value);
-    }
-    my $response = make_request($cgi);
-    return $response;
-}
-
-sub make_request {
-    my $cgi = shift;
-    my $capture = IO::Capture::Stdout->new();
-    $capture->start;
-    $server->handle_request($cgi);
-    $capture->stop;
-    my $buffer = join '', $capture->read;
-    return $buffer;
-}
-
