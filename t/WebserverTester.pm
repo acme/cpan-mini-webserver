@@ -1,4 +1,4 @@
-package Handy;
+package WebserverTester;
 use base qw(Exporter);
 
 use strict;
