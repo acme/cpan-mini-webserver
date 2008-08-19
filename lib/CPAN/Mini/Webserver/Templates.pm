@@ -533,7 +533,7 @@ template 'distribution' => sub {
 
                     #                    outs_raw '<table>';
                     my ( @code, @test, @other );
-                    while ( $_ = shift @filenames ) {
+                    foreach (@filenames) {
                         if ( m{(?:/bin/|\.p(?:m|l)$)} and not m{/inc/} ) {
                             push @code, $_;
                         } elsif (/\.t$/) {
