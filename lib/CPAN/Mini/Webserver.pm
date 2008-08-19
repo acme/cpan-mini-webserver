@@ -215,7 +215,7 @@ sub not_found_page {
     my $self = shift;
     my $q    = shift;
     my ( $authors, $dists, $packages ) = $self->_do_search($q);
-    print "HTTP/1.0 200 OK\r\n";
+    print "HTTP/1.0 404 Not found\r\n";
     print $self->cgi->header;
     print Template::Declare->show(
         '404',
