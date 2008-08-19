@@ -12,7 +12,7 @@ eval {
 if ( $@ =~ /Please set up minicpan/ ) {
     plan skip_all => "CPAN::Mini mirror must be installed for testing: $@";
 } else {
-    plan tests => 58;
+    plan tests => 36;
 }
 
 setup_server();
@@ -81,3 +81,6 @@ opensearch_ok('/static/xml/opensearch.xml');
 # 404
 error404_ok('/this/doesnt/exist');
 
+# downloads
+$html = download_ok('/download/~LBROCARD/Acme-Buffy-1.5/Acme-Buffy-1.5/README');
+like( $html, qr{Copyright \(c\) 2001});

@@ -5,97 +5,159 @@ use strict;
 use warnings;
 
 use Test::Builder;
-my $Tester = Test::Builder->new;
 
 use IO::Capture::Stdout;
+use HTTP::Response;
 use CGI;
 
 our @EXPORT;
 my $server;
 
+{
+    # create a bunch of testing routines that we use internally
+    # these SILENTLY return 1 on success, but on failure return 0
+    # and spit out a failing test case
+    #
+    # This allows us to easily write compound tests
+    
+    my $Tester = Test::Builder->new;
+
+    sub is_num($$;$) {
+        local $Test::Builder::Level = $Test::Builder::Level + 1;
+        return 1 if $_[0] == $_[1];
+        $Tester->is_num($_[0],$_[1], $Test::name);
+        $Tester->diag($_[2]) if $_[2];
+        return 0;
+    }
+
+    sub is_eq($$;$) {
+        local $Test::Builder::Level = $Test::Builder::Level + 1;
+        return 1 if $_[0] eq $_[1];
+        $Tester->is_eq($_[0],$_[1], $Test::name);
+        $Tester->diag($_[2]) if $_[2];
+        return 0;
+    }
+
+    sub like($$;$) {
+        local $Test::Builder::Level = $Test::Builder::Level + 1;
+        return 1 if $_[0] =~ $_[1];
+        $Tester->like($_[0], $_[1], $Test::name);
+        $Tester->diag($_[2]) if $_[2];
+        return 0;
+    }
+
+    sub ok() {
+        $Tester->ok(1, $Test::name);
+        return 1;
+    }
+}
+
 sub setup_server {
     $server = CPAN::Mini::Webserver->new(2963);
     $server->after_setup_listener;
-};
+}
 push @EXPORT, "setup_server";
 
 sub html_page_ok {
     my $path = shift;
-    my $response = make_request($path, @_);
+    my ($code, $mime, $content) = make_request($path, @_);
     
     # basic "is my response correct" tests
-    $Tester->like($response, qr/200 OK/, "page returned 200 OK");
-    $Tester->like($response, qr{Content-Type: text/html}, "html mime");
-    $Tester->like($response, qr/<html/, "page had a html tag in it");
+    local $Test::name = "html page from '$path'";
+    return unless is_num $code, 200, "when checking status";
+    return unless like $mime, qr{^text/html}, "when checking html mimetype";
+    return unless like $content, qr/<html/, "when checking page had a html tag in it";
+    ok;
     
-    return $response;
+    return $content;
 }
 push @EXPORT, "html_page_ok";
 
 sub css_ok {
     my $path = shift;
-    my $response = make_request($path, @_);
+    my ($code, $mime, $content) = make_request($path, @_);
     
     # basic "is my response correct" tests
-    $Tester->like($response, qr/200 OK/, "page returned 200 OK");
-    $Tester->like($response, qr{Content-Type: text/css}, "css mime");
+    local $Test::name = "css from '$path'";
+    return unless is_num $code, 200, "when checking status";
+    return unless like $mime, qr{^text/css}, "css mimetype";
+    ok;
     
-    return $response;
+    return $content;
 }
 push @EXPORT, "css_ok";
 
 sub png_ok {
     my $path = shift;
-    my $response = make_request($path, @_);
+    my ($code, $mime, $content) = make_request($path, @_);
     
     # basic "is my response correct" tests
-    $Tester->like($response, qr/200 OK/, "page returned 200 OK");
-    $Tester->like($response, qr{Content-Type: image/png}, "css mime");
+    local $Test::name = "png from '$path'";
+    return unless is_num $code, 200, "when checking status";
+    return unless like $mime, qr{^image/png}, "when checking css mimetype";
+    ok;
     
-    return $response;
+    return $content;
 }
 push @EXPORT, "png_ok";
 
 sub opensearch_ok {
     my $path = shift;
-    my $response = make_request($path, @_);
+    my ($code, $mime, $content) = make_request($path, @_);
     
     # basic "is my response correct" tests
-    $Tester->like($response, qr/200 OK/, "page returned 200 OK");
-    $Tester->like($response, qr{Content-Type: application/opensearchdescription\+xml}, "opensearch mime");
-    $Tester->like($response, qr/<\?xml/, "xml tag");
+    local $Test::name = "opensearch from '$path'";
+    return unless is_num $code, 200, "when checking status";
+    return unless like $mime, qr{^application/opensearchdescription}, "when checking opensearch mimetype";
+    return unless like $content, qr/<\?xml/, "when checking for an xml tag";
+    ok;
     
-    return $response;
+    return $content;
 }
 push @EXPORT, "opensearch_ok";
 
 sub redirect_ok {
     my $location = shift;
     my $path = shift;
-    my $response = make_request($path, @_);
+    my ($code, $mime, $content, $response) = make_request($path, @_);
     
-    $Tester->like( $response, qr{HTTP/1.0 302 OK}, "returned 302");
-    $Tester->like( $response, qr{Status: 302 Found}, "status is 302 found");
-    $Tester->like( $response,
-        qr{Location: $location},
-        "went to the right place"
-    );
+    local $Test::name = "redirect from '$path'";
+    return unless is_num $code, 302, "when checking status";
+    return unless is_eq $response->header("Status"), "302 Found", "when checking Status";
+    return unless is_eq
+        $response->header("Location"),
+        $location,
+        "when checking went to the right place";
+    ok;
     
     return $response;
 }
 push @EXPORT, "redirect_ok";
 
 sub error404_ok {
-    my $location = shift;
     my $path = shift;
-    my $response = make_request($path, @_);
+    my ($code, $mime, $content, $response) = make_request($path, @_);
     
-    $Tester->like( $response, qr{HTTP/1.0 404 Not found}, "returned 303");
+    local $Test::name = "error 404 for '$path'";
+    return unless is_num $code, 404, "when checking status";
+    ok;
     
     return $response;
 }
 push @EXPORT, "error404_ok";
 
+sub download_ok {
+    my $path     = shift;
+    my ($code, $mime, $content) = make_request($path, @_);
+    
+    local $Test::name = "download for '$path'";
+    return unless is_num $code, 200, "when checking status";
+    return unless like $mime, qr{^text/plain}, "when checking plain mimetype";
+    ok;
+    
+    return $content;
+}
+push @EXPORT, "download_ok";
 
 sub make_request {
     my $path = shift;
@@ -113,9 +175,9 @@ sub make_request {
     $server->handle_request($cgi);
     $capture->stop;
     my $buffer = join '', $capture->read;
-    return $buffer;
+    
+    my $r = HTTP::Response->parse($buffer);
+    return wantarray ? ($r->code || "", $r->header("Content-Type") || "", $r->content || "", $r) : $r->as_string;
 }
 
-"I wonder if dom's script that looks
-for true values at the end of modules
-looks in test modules too?";
+"I wonder if dom's script that looks for true values at the end of modules looks in test modules too?";
