@@ -16,51 +16,42 @@ if ( $@ =~ /Please set up minicpan/ ) {
     plan tests => 21;
 }
 
-my $capture = IO::Capture::Stdout->new();
-
 my $server = CPAN::Mini::Webserver->new(2963);
 $server->after_setup_listener;
 
+my $html;
+
 # index
-my $cgi = CGI->new;
-$cgi->path_info('/');
-my $html = make_request();
+$html = page('/');
 like( $html, qr/Index/ );
 like( $html, qr/Welcome to CPAN::Mini::Webserver/ );
 
 # search for buffy
-$cgi->path_info('/search/');
-$cgi->param( 'q', 'buffy' );
-$html = make_request();
+$html = page('/search/', q => "buffy");
 like( $html, qr/Search for .buffy./ );
 like( $html, qr/Acme-Buffy-1.5/ );
 like( $html, qr/Leon Brocard/ );
 
 # show Leon
-$cgi->path_info('~lbrocard/');
-$cgi->param( 'q', undef );
-$html = make_request();
+$html = page('~lbrocard/', 'q' => undef );
 like( $html, qr/Leon Brocard/ );
 like( $html, qr/Acme-Buffy-1.5/ );
 like( $html, qr/Tie-GHash-0.12/ );
 
 # Show Acme-Buffy-1.5
-$cgi->path_info('~lbrocard/Acme-Buffy-1.5/');
-$html = make_request();
+$html = page('~lbrocard/Acme-Buffy-1.5/');
 like( $html, qr/Leon Brocard &gt; Acme-Buffy-1.5/ );
 like( $html, qr/CHANGES/ );
 like( $html, qr/demo_buffy\.pl/ );
 
 # Show Acme-Buffy-1.5 CHANGES
-$cgi->path_info('~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/CHANGES');
-$html = make_request();
+$html = page('~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/CHANGES');
 like( $html,
     qr{Leon Brocard &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/CHANGES} );
 like( $html, qr/Revision history for Perl extension Buffy/ );
 
 # Show Acme-Buffy-1.5 CHANGES Buffy.pm
-$cgi->path_info('~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm');
-$html = make_request();
+$html = page('~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm');
 like( $html,
     qr{Leon Brocard &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/lib/Acme/Buffy.pm}
 );
@@ -68,24 +59,37 @@ like( $html, qr{An encoding scheme for Buffy the Vampire Slayer fans} );
 like( $html, qr{See raw file} );
 
 # Show Acme-Buffy-1.5 CHANGES Buffy.pm
-$cgi->path_info(
+$html = page (
     '/raw/~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm');
-$html = make_request();
 like( $html,
     qr{Leon Brocard &gt; Acme-Buffy-1.5 &gt; Acme-Buffy-1.5/lib/Acme/Buffy.pm}
 );
 like( $html, qr{An encoding scheme for Buffy the Vampire Slayer fans} );
 
 # Show package Acme::Buffy.pm
-$cgi->path_info('/package/lbrocard/Acme-Buffy-1.5/Acme::Buffy/');
-$html = make_request();
+$html = page('/package/lbrocard/Acme-Buffy-1.5/Acme::Buffy/');
 like( $html, qr{HTTP/1.0 302 OK} );
 like( $html, qr{Status: 302 Found} );
 like( $html,
     qr{Location: http://localhost:2963/~lbrocard/Acme-Buffy-1.5/Acme-Buffy-1.5/lib/Acme/Buffy.pm}
 );
 
+sub page {
+    my $path = shift;
+    my $cgi = CGI->new;
+    $cgi->path_info($path);
+    while (@_) {
+        my $name = shift;
+        my $value = shift;
+        $cgi->param($name, $value);
+    }
+    my $response = make_request($cgi);
+    return $response;
+}
+
 sub make_request {
+    my $cgi = shift;
+    my $capture = IO::Capture::Stdout->new();
     $capture->start;
     $server->handle_request($cgi);
     $capture->stop;
