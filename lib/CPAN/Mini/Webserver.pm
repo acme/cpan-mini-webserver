@@ -493,7 +493,7 @@ sub download_file {
     my ($distribution)
         = grep { $_->cpanid eq uc $pauseid && $_->distvname eq $distvname }
         $self->parse_cpan_packages->distributions;
-    my $prefix = file( undef, 'authors', 'id', $distribution->prefix );
+    my $prefix = file( '', 'authors', 'id', $distribution->prefix );
     my $file = file( $self->directory, $prefix );
 
     if ($filename) {
