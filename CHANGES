@@ -1,6 +1,6 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
-0.40
+0.40 Fri Aug 22 09:24:54 BST 2008
      - improve the test suite (patch by markf)
      - detect installed modules properly (patch by rjbs)
      - index CamelCase distributions and modules so that you can
