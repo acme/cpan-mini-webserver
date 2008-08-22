@@ -205,7 +205,7 @@ sub _handle_request {
     #warn "$raw / $download / $pauseid / $distvname / $filename";
 
     if ( $path eq '/' ) {
-        $self->index_page();
+        $self->direct_to_template("index");
     } elsif ( $path eq '/search/' ) {
         $self->search_page();
     } elsif ( $raw && $pauseid && $distvname && $filename ) {
@@ -229,19 +229,22 @@ sub _handle_request {
     } elsif ($prefix) {
         $self->download_cpan($prefix);
     } elsif ( $path eq '/static/css/screen.css' ) {
-        $self->css_screen_page();
+        $self->direct_to_template("css_screen", "text/css");
     } elsif ( $path eq '/static/css/print.css' ) {
-        $self->css_print_page();
+        $self->direct_to_template("css_print", "text/css");
     } elsif ( $path eq '/static/css/ie.css' ) {
-        $self->css_ie_page();
+        $self->direct_to_template("css_ie","text/css");
     } elsif ( $path eq '/static/images/logo.png' ) {
-        $self->images_logo_page();
+        $self->direct_to_template("images_logo","image/png");
     } elsif ( $path eq '/static/images/favicon.png' ) {
-        $self->images_favicon_page();
+        $self->direct_to_template("images_favicon","image/png");
     } elsif ( $path eq '/favicon.ico' ) {
-        $self->images_favicon_page();
+        $self->direct_to_template("images_favicon","image/png");
     } elsif ( $path eq '/static/xml/opensearch.xml' ) {
-        $self->opensearch_page();
+        $self->direct_to_template(
+            "opensearch",
+            "application/opensearchdescription+xml",
+        );
     } else {
         my ($q) = $path =~ m'/(.*?)/?$';
         $self->not_found_page($q);
@@ -272,13 +275,6 @@ sub redirect {
     print "HTTP/1.0 302\015\012";
     print $self->cgi->redirect($url);
 
-}
-
-sub index_page {
-    my $self = shift;
-
-    $self->send_http_header( 200, -charset => 'utf-8' );
-    print Template::Declare->show('index');
 }
 
 sub search_page {
@@ -653,52 +649,18 @@ sub list_files {
     }
 }
 
-sub css_screen_page {
-    my $self = shift;
-
-    $self->send_http_header( 200, -type => 'text/css', -expires => '+1d' );
-    print Template::Declare->show('css_screen');
-}
-
-sub css_print_page {
-    my $self = shift;
-
-    $self->send_http_header( 200, -type => 'text/css', -expires => '+1d' );
-    print Template::Declare->show('css_print');
-}
-
-sub css_ie_page {
-    my $self = shift;
-    my $cgi  = $self->cgi;
-
-    $self->send_http_header( 200, -type => 'text/css', -expires => '+1d' );
-    print Template::Declare->show('css_ie');
-}
-
-sub images_logo_page {
-    my $self = shift;
-
-    $self->send_http_header( 200, -type => 'image/png', -expires => '+1d' );
-    print Template::Declare->show('images_logo');
-}
-
-sub images_favicon_page {
-    my $self = shift;
-
-    $self->send_http_header( 200, -type => 'image/png', -expires => '+1d' );
-    print Template::Declare->show('images_favicon');
-}
-
-sub opensearch_page {
-    my $self = shift;
-    my $cgi  = $self->cgi;
+sub direct_to_template {
+    my $self     = shift;
+    my $template = shift;
+    my $mime     = shift;
 
     $self->send_http_header(
-        200,
-        -type    => 'application/opensearchdescription+xml',
-        -expires => '+1d'
+        200, 
+        -expires => '+1d',
+        ($mime ? (-type => $mime) : ()),
     );
-    print Template::Declare->show('opensearch');
+
+    print Template::Declare->show($template);
 }
 
 1;
