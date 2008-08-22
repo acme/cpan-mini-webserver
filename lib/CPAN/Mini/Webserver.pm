@@ -63,9 +63,10 @@ sub get_file_from_tarball {
 
         # Use the system built-in tar (hopefully)
         # This one hopefully understands -z
-        # and CPAN filenames contain hopefully no weird characters
-        # warn "tar fzxO $file $filename";
-        $contents = `tar fzxO $file $filename`;
+        use String::ShellQuote qw(shell_quote);
+        my $q_file     = shell_quote $file;
+        my $q_filename = shell_quote $filename;
+        $contents = `tar fzxO $q_file $q_filename`;
     }
     return $contents;
 }
