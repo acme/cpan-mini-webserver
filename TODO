@@ -3,7 +3,6 @@ Things that we want to do
 * Make sure all patches/commits are reformatted using perltidy and
   the .perltidyrc in this directory
 
-Have a generic error page, and push all errors to it
 Reload indexes if the indexes have updated
 
 Maybe use LWP::Online and gravatar? 
@@ -20,7 +19,6 @@ Ideas from Max Maischein:
    the start these links should just be predefined searches
    for "XML", "DBI", "CGI".
  * Consider listing "Web frameworks". Later.
- * An empty search string causes an error.
 
 - (mirror) Mini CPAN Mirror Status page
  * Show time of mirror

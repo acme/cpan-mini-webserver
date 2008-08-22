@@ -52,7 +52,12 @@ sub search {
     my @results;
 
     my $qp = Search::QueryParser->new( rxField => qr/NOTAFIELD/, );
-    my $query = $qp->parse( $q, 1 ) or die "Error in query : " . $qp->err;
+    my $query = $qp->parse( $q, 1 );
+    unless ($query) {
+
+        # warn "Error in query : " . $qp->err;
+        return;
+    }
 
     foreach my $part ( @{ $query->{'+'} } ) {
         my $value = $part->{value};
