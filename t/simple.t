@@ -25,7 +25,7 @@ eval {
 if ( $@ =~ /Please set up minicpan/ ) {
     plan skip_all => "CPAN::Mini mirror must be installed for testing: $@";
 } else {
-    plan tests => 45;
+    plan tests => 47;
 }
 
 setup_server();
@@ -101,7 +101,14 @@ $html
     = download_ok('/download/~LBROCARD/Acme-Buffy-1.5/Acme-Buffy-1.5/README');
 like( $html, qr{Copyright \(c\) 2001} );
 
+redirect_ok(
+    '/authors/id/L/LB/LBROCARD/Acme-Buffy-1.5.tar.gz',
+    '/download/~LBROCARD/Acme-Buffy-1.5',
+);
+
 # be like a CPAN mirror
+$html = download_gzip_ok('/authors/id/L/LB/LBROCARD/Acme-Buffy-1.5.tar.gz');
+
 $html = download_gzip_ok('/modules/02packages.details.txt.gz');
 like( $html, qr{^\037\213} );
 

@@ -493,9 +493,8 @@ sub download_file {
     my ($distribution)
         = grep { $_->cpanid eq uc $pauseid && $_->distvname eq $distvname }
         $self->parse_cpan_packages->distributions;
-
-    my $file
-        = file( $self->directory, 'authors', 'id', $distribution->prefix );
+    my $prefix = file( undef, 'authors', 'id', $distribution->prefix );
+    my $file = file( $self->directory, $prefix );
 
     if ($filename) {
         my $contents
@@ -507,19 +506,7 @@ sub download_file {
         );
         print $contents;
     } else {
-        open my $fh, $file or return $self->not_found_page( $self->filename );
-
-        my $content_type
-            = $file =~ /zip/ ? 'application/zip' : 'application/x-gzip';
-        $self->send_http_header(
-            200,
-            -content_type        => $content_type,
-            -content_disposition => "attachment; filename=" . $file->basename,
-            -content_length      => -s $fh,
-        );
-        while (<$fh>) {
-            print;
-        }
+        return $self->redirect($prefix);
     }
 }
 
