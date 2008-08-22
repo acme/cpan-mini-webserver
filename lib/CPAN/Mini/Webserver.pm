@@ -3,6 +3,8 @@ use App::Cache;
 use CPAN::Mini::App;
 use CPAN::Mini::Webserver::Index;
 use CPAN::Mini::Webserver::Templates;
+use File::Spec::Functions qw(canonpath);
+use File::Type;
 use List::MoreUtils qw(uniq);
 use Module::InstalledVersion;
 use Moose;
@@ -94,15 +96,16 @@ sub checksum_data_for_author {
 }
 
 sub send_http_header {
-    my $self = shift;
-    my $code = shift;
+    my $self   = shift;
+    my $code   = shift;
     my %params = @_;
-    my $cgi = $self->cgi;
+    my $cgi    = $self->cgi;
 
-    if ( ( defined $params{-charset} and $params{-charset} eq 'utf-8'    ) or
-         ( defined $params{-type}    and $params{-type}    eq 'text/xml' ) ) {
-        binmode (STDOUT, ":encoding(utf-8)");
-    } elsif (defined $params{-type}) {
+    if (   ( defined $params{-charset} and $params{-charset} eq 'utf-8' )
+        or ( defined $params{-type} and $params{-type} eq 'text/xml' ) )
+    {
+        binmode( STDOUT, ":encoding(utf-8)" );
+    } elsif ( defined $params{-type} ) {
         binmode STDOUT, ":raw";
     }
     print "HTTP/1.0 $code\015\012";
@@ -125,17 +128,18 @@ sub after_setup_listener {
             && ( -f $authors_filename )
             && ( -f $packages_filename );
     my $cache = App::Cache->new( { ttl => 60 * 60 } );
-    
+
     my $whois_filename = file( $directory, 'authors', '00whois.xml' );
     my $parse_cpan_authors;
-    if ( -f $whois_filename) {
+    if ( -f $whois_filename ) {
         $self->author_type('Whois');
         $parse_cpan_authors = $cache->get_code( 'parse_cpan_whois',
-            sub { Parse::CPAN::Whois->new ( $whois_filename->stringify ) } );
+            sub { Parse::CPAN::Whois->new( $whois_filename->stringify ) } );
     } else {
         $self->author_type('Authors');
         $parse_cpan_authors = $cache->get_code( 'parse_cpan_authors',
-            sub { Parse::CPAN::Authors->new( $authors_filename->stringify ) } );
+            sub { Parse::CPAN::Authors->new( $authors_filename->stringify ) }
+        );
     }
     my $parse_cpan_packages = $cache->get_code( 'parse_cpan_packages',
         sub { Parse::CPAN::Packages->new( $packages_filename->stringify ) } );
@@ -176,7 +180,9 @@ sub _handle_request {
     my $path = $cgi->path_info();
 
     # $raw, $download and $install should become $action?
-    my ( $raw, $install, $download, $pauseid, $distvname, $filename );
+    my ($raw,       $install,  $download, $pauseid,
+        $distvname, $filename, $prefix
+    );
     if ( $path =~ m{^/~} ) {
         ( undef, $pauseid, $distvname, $filename ) = split( '/', $path, 4 );
         $pauseid =~ s{^~}{};
@@ -189,6 +195,8 @@ sub _handle_request {
             : $download
         ) = 1;
         $pauseid =~ s{^~}{};
+    } elsif ( $path =~ m{^/((?:modules|authors)/.+$)} ) {
+        $prefix = $1;
     }
     $self->pauseid($pauseid);
     $self->distvname($distvname);
@@ -218,6 +226,8 @@ sub _handle_request {
         $self->dist_page();
     } elsif ( $path =~ m{^/package/} ) {
         $self->package_page();
+    } elsif ($prefix) {
+        $self->download_cpan($prefix);
     } elsif ( $path eq '/static/css/screen.css' ) {
         $self->css_screen_page();
     } elsif ( $path eq '/static/css/print.css' ) {
@@ -243,7 +253,7 @@ sub not_found_page {
     my $self = shift;
     my $q    = shift;
     my ( $authors, $dists, $packages ) = $self->_do_search($q);
-    $self->send_http_header(404, -charset => 'utf-8');
+    $self->send_http_header( 404, -charset => 'utf-8' );
     print Template::Declare->show(
         '404',
         {   parse_cpan_authors => $self->parse_cpan_authors,
@@ -267,7 +277,7 @@ sub redirect {
 sub index_page {
     my $self = shift;
 
-    $self->send_http_header(200, -charset => 'utf-8');
+    $self->send_http_header( 200, -charset => 'utf-8' );
     print Template::Declare->show('index');
 }
 
@@ -276,7 +286,7 @@ sub search_page {
     my $q    = $self->cgi->param('q');
 
     my ( $authors, $dists, $packages ) = $self->_do_search($q);
-    $self->send_http_header(200, -charset => 'utf-8');
+    $self->send_http_header( 200, -charset => 'utf-8' );
     print Template::Declare->show(
         'search',
         {   parse_cpan_authors => $self->parse_cpan_authors,
@@ -347,7 +357,7 @@ sub author_page {
         }
     }
 
-    $self->send_http_header(200, -charset => 'utf-8');
+    $self->send_http_header( 200, -charset => 'utf-8' );
     print Template::Declare->show(
         'author',
         {   author        => $author,
@@ -381,7 +391,7 @@ sub distribution_page {
 
     my @filenames = $self->list_files($distribution);
 
-    $self->send_http_header(200, -charset => 'utf-8');
+    $self->send_http_header( 200, -charset => 'utf-8' );
     print Template::Declare->show(
         'distribution',
         {   author       => $self->parse_cpan_authors->author( uc $pauseid ),
@@ -396,7 +406,7 @@ sub distribution_page {
 }
 
 sub pod_page {
-    my $self      = shift;
+    my $self = shift;
     my ($pkgname) = $self->cgi->keywords;
 
     my $m = $self->parse_cpan_packages->package($pkgname);
@@ -460,7 +470,7 @@ sub file_page {
 #   $html
 #       =~ s/^(.*%3A%3A.*)$/my $x = $1; ($x =~ m{indexItem}) ? 1 : $x =~ s{%3A%3A}{\/}g; $x/gme;
 
-    $self->send_http_header(200, -charset => 'utf-8');
+    $self->send_http_header( 200, -charset => 'utf-8' );
     print Template::Declare->show(
         'file',
         {   author       => $self->parse_cpan_authors->author( uc $pauseid ),
@@ -490,8 +500,9 @@ sub download_file {
     if ($filename) {
         my $contents
             = $self->get_file_from_tarball( $distribution, $filename );
-        $self->send_http_header(200,
-            -content_type => 'text/plain',
+        $self->send_http_header(
+            200,
+            -content_type   => 'text/plain',
             -content_length => length $contents,
         );
         print $contents;
@@ -500,7 +511,8 @@ sub download_file {
 
         my $content_type
             = $file =~ /zip/ ? 'application/zip' : 'application/x-gzip';
-        $self->send_http_header(200,
+        $self->send_http_header(
+            200,
             -content_type        => $content_type,
             -content_disposition => "attachment; filename=" . $file->basename,
             -content_length      => -s $fh,
@@ -558,7 +570,7 @@ sub raw_page {
         $html = join '', @lines;
     }
 
-    $self->send_http_header(200, -charset => 'utf-8');
+    $self->send_http_header( 200, -charset => 'utf-8' );
     print Template::Declare->show(
         'raw',
         {   author       => $self->parse_cpan_authors->author( uc $pauseid ),
@@ -606,6 +618,30 @@ sub package_page {
     my $url  = "http://$host:$port/~$pauseid/$distvname/$filename";
 
     $self->redirect($url);
+}
+
+sub download_cpan {
+    my ( $self, $prefix ) = @_;
+    my $file_type = File::Type->new;
+    my $file      = file( $self->directory,
+        canonpath( URI::Escape::uri_unescape($prefix) ) );
+
+    open my $fh, $file or return $self->not_found_page($prefix);
+
+    my $content_type = $file_type->checktype_filename($file);
+    $content_type = 'text/plain' unless $file->basename =~ /\./;
+
+    $self->send_http_header(
+        200,
+        -content_type        => $content_type,
+        -content_disposition => "attachment; filename=" . $file->basename,
+        -content_length      => -s $fh,
+    );
+    while (<$fh>) {
+        print;
+    }
+    $fh->close;
+
 }
 
 sub list_files {
@@ -670,7 +706,8 @@ sub opensearch_page {
     my $self = shift;
     my $cgi  = $self->cgi;
 
-    $self->send_http_header( 200,
+    $self->send_http_header(
+        200,
         -type    => 'application/opensearchdescription+xml',
         -expires => '+1d'
     );

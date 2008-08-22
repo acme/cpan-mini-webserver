@@ -11,6 +11,7 @@ WriteMakefile(
         'App::Cache'               => '0',
         'CGI'                      => '3.16',
         'CPAN::Mini'               => '0.565',
+        'File::Type'               => '0',
         'HTTP::Server::Simple'     => '0.34',
         'IO::Capture::Stdout'      => '0',
         'List::MoreUtils'          => '0',

@@ -25,7 +25,7 @@ eval {
 if ( $@ =~ /Please set up minicpan/ ) {
     plan skip_all => "CPAN::Mini mirror must be installed for testing: $@";
 } else {
-    plan tests => 38;
+    plan tests => 45;
 }
 
 setup_server();
@@ -100,3 +100,15 @@ error404_ok('/this/doesnt/exist');
 $html
     = download_ok('/download/~LBROCARD/Acme-Buffy-1.5/Acme-Buffy-1.5/README');
 like( $html, qr{Copyright \(c\) 2001} );
+
+# be like a CPAN mirror
+$html = download_gzip_ok('/modules/02packages.details.txt.gz');
+like( $html, qr{^\037\213} );
+
+$html = download_gzip_ok('/authors/01mailrc.txt.gz');
+like( $html, qr{^\037\213} );
+
+$html = download_ok('/authors/id/L/LB/LBROCARD/CHECKSUMS');
+like( $html, qr{this PGP-signed message is also valid perl} );
+
+error404_ok('/authors/id/L/LB/LBROCARD/CHECKSUMZ');

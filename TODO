@@ -36,8 +36,6 @@ Ideas from Max Maischein:
 
 Ideas from Mark Fowler:
 
-- Be able to use the webserver from a remote computer as a standard
-CPAN mirror
 - Make p3rl.org short url paths work and 302 to the right place
 
 After that I had a laundry list of other features:

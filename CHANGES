@@ -10,7 +10,8 @@ Revision history for Perl module CPAN::Mini::Webserver:
        cpan-related pages for the author (patch by martijn)
      - make an empty search give "No results found", rather than
        an error (noticed by corion)
-
+     - make the webserver work as a local CPAN mirror so that you can
+       point CPAN or CPANPLUS at it (idea by markf)
 0.39 Tue Aug 19 08:27:37 BST 2008
      - make a single key from the license text and the license url
        from resources instead of displaying both seperately (patch
