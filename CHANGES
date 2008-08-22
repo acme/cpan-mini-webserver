@@ -1,7 +1,7 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
 0.41
-     - 
+     - drop the header font size a little
 
 0.40 Fri Aug 22 09:24:54 BST 2008
      - improve the test suite (patch by markf)
