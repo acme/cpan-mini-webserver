@@ -53,8 +53,6 @@ sub get_file_from_tarball {
     die "unknown distribution format $file"
         unless ( $file =~ /\.(?:tar\.gz|tgz)$/ );
 
-    # warn "tar fzxO $file $filename";
-    #my $contents = `tar fzxO $file $filename`;
     my $contents;
     if ( eval { require Archive::Tar; 1 } ) {
         my $ar = Archive::Tar->new("$file");
