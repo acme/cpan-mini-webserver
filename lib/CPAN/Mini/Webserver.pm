@@ -541,7 +541,7 @@ sub raw_page {
         # remove newlines
         $_ =~ s{<br>}{}g foreach @lines;
 
-        # link module names to search.cpan.org
+        # link module names to ourselves
         my $port = $self->port;
         my $host = $self->hostname;
         @lines = map {
