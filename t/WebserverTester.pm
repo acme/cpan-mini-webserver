@@ -58,11 +58,22 @@ my $server;
         $Tester->ok( 1, $Test::name );
         return 1;
     }
+
+    sub skip_all() {
+        $Tester->plan(skip_all => "CPAN::Mini mirror must be installed for testing: $@");
+        exit;
+    }
 }
 
 sub setup_server {
-    $server = CPAN::Mini::Webserver->new(2963);
-    $server->after_setup_listener;
+    eval {
+        $server = CPAN::Mini::Webserver->new(2963);
+        $server->after_setup_listener;
+    };
+
+    skip_all() if $@ && $@ =~ /Please set up minicpan/;
+
+    return $server;
 }
 push @EXPORT, "setup_server";
 

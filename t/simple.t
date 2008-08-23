@@ -1,7 +1,6 @@
 #!perl
 use strict;
 use warnings;
-use utf8;
 
 use Test::More;
 
@@ -11,24 +10,13 @@ use WebserverTester;
 
 use CPAN::Mini::Webserver;
 
-my $name;
-eval {
-    my $server = CPAN::Mini::Webserver->new(2963);
-    $server->after_setup_listener;
-    if ( $server->author_type eq 'Whois' ) {
-        $name = 'Léon Brocard';
-    } else {
-        $name = 'Leon Brocard';
-    }
-};
+my $server = setup_server();
+plan tests => 47;
 
-if ( $@ =~ /Please set up minicpan/ ) {
-    plan skip_all => "CPAN::Mini mirror must be installed for testing: $@";
-} else {
-    plan tests => 47;
-}
+my $name = ($server->author_type eq 'Whois')
+    ? "L\e{e9}on Brocard"
+    : 'Leon Brocard';
 
-setup_server();
 my $html;
 
 # index
