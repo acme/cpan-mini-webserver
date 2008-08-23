@@ -100,7 +100,7 @@ private template distribution_file => sub {
         ? $1
         : $filename;
     my $href
-        = ( $filename =~ /\.(pm|PL|pod)$/ )
+        = ( $filename =~ /\.(pm|pod)$/ )
         ? "/~$pauseid/$distvname/$filename"
         : "/raw/~$pauseid/$distvname/$filename";
     row {
