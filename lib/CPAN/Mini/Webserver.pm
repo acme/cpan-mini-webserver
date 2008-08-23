@@ -36,7 +36,7 @@ has 'parse_cpan_packages' => ( is => 'rw', isa => 'Parse::CPAN::Packages' );
 has 'pauseid'             => ( is => 'rw' );
 has 'distvname'           => ( is => 'rw' );
 has 'filename'            => ( is => 'rw' );
-has 'index' => ( is => 'rw', isa => 'CPAN::Mini::Webserver::Index' );
+has 'index'               => ( is => 'rw', isa => 'CPAN::Mini::Webserver::Index' );
 
 our $VERSION = '0.40';
 
