@@ -154,15 +154,6 @@ sub after_setup_listener {
     $index->create_index( $parse_cpan_authors, $parse_cpan_packages );
 }
 
-sub print_banner {
-    my $self = shift;
-
-    print(    "CPAN:Mini::Webserver is ready for your queries at "
-            . "http://localhost:"
-            . $self->port
-            . "/\n" );
-}
-
 sub handle_request {
     my ( $self, $cgi ) = @_;
     eval { $self->_handle_request($cgi) };
