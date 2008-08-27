@@ -81,7 +81,7 @@ sub checksum_data_for_author {
 
     return unless -f $file;
 
-    my ( $content, $cksum );
+    my ( $content, $checksum );
     {
         local $/;
         open my $fh, "$file" or die "$file: $!";
@@ -91,7 +91,7 @@ sub checksum_data_for_author {
 
     eval $content;
 
-    return $cksum;
+    return $checksum;
 }
 
 sub send_http_header {
@@ -334,11 +334,12 @@ sub author_page {
         $self->parse_cpan_packages->distributions;
     my $author = $self->parse_cpan_authors->author( uc $pauseid );
 
-    my $cksum = $self->checksum_data_for_author( uc $pauseid );
+    my $checksum = $self->checksum_data_for_author( uc $pauseid );
     my %dates;
-    if ( not $@ and defined $cksum ) {
+    if ( not $@ and defined $checksum ) {
         foreach my $dist (@distributions) {
-            $dates{ $dist->distvname } = $cksum->{ $dist->filename }->{mtime};
+            $dates{ $dist->distvname }
+                = $checksum->{ $dist->filename }->{mtime};
         }
     }
 
@@ -370,9 +371,9 @@ sub distribution_page {
         $meta = $yaml[0];
     }
 
-    my $cksum_data = $self->checksum_data_for_author( uc $pauseid );
+    my $checksum_data = $self->checksum_data_for_author( uc $pauseid );
     $meta->{'release date'}
-        = $cksum_data->{ $distribution->filename }->{mtime};
+        = $checksum_data->{ $distribution->filename }->{mtime};
 
     my @filenames = $self->list_files($distribution);
 
