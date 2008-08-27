@@ -16,6 +16,7 @@ use Pod::Simple::HTML;
 use Path::Class;
 use PPI;
 use PPI::HTML;
+use String::ShellQuote qw(shell_quote);
 use Template::Declare;
 
 Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
@@ -61,7 +62,6 @@ sub get_file_from_tarball {
 
         # Use the system built-in tar (hopefully)
         # This one hopefully understands -z
-        use String::ShellQuote qw(shell_quote);
         my $q_file     = shell_quote $file;
         my $q_filename = shell_quote $filename;
         $contents = `tar fzxO $q_file $q_filename`;
