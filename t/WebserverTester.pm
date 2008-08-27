@@ -60,7 +60,8 @@ my $server;
     }
 
     sub skip_all() {
-        $Tester->plan(skip_all => "CPAN::Mini mirror must be installed for testing: $@");
+        $Tester->plan( skip_all =>
+                "CPAN::Mini mirror must be installed for testing: $@" );
         exit;
     }
 }

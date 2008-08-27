@@ -36,7 +36,7 @@ has 'parse_cpan_packages' => ( is => 'rw', isa => 'Parse::CPAN::Packages' );
 has 'pauseid'             => ( is => 'rw' );
 has 'distvname'           => ( is => 'rw' );
 has 'filename'            => ( is => 'rw' );
-has 'index'               => ( is => 'rw', isa => 'CPAN::Mini::Webserver::Index' );
+has 'index' => ( is => 'rw', isa => 'CPAN::Mini::Webserver::Index' );
 
 our $VERSION = '0.40';
 
@@ -219,20 +219,19 @@ sub _handle_request {
     } elsif ($prefix) {
         $self->download_cpan($prefix);
     } elsif ( $path eq '/static/css/screen.css' ) {
-        $self->direct_to_template("css_screen", "text/css");
+        $self->direct_to_template( "css_screen", "text/css" );
     } elsif ( $path eq '/static/css/print.css' ) {
-        $self->direct_to_template("css_print", "text/css");
+        $self->direct_to_template( "css_print", "text/css" );
     } elsif ( $path eq '/static/css/ie.css' ) {
-        $self->direct_to_template("css_ie","text/css");
+        $self->direct_to_template( "css_ie", "text/css" );
     } elsif ( $path eq '/static/images/logo.png' ) {
-        $self->direct_to_template("images_logo","image/png");
+        $self->direct_to_template( "images_logo", "image/png" );
     } elsif ( $path eq '/static/images/favicon.png' ) {
-        $self->direct_to_template("images_favicon","image/png");
+        $self->direct_to_template( "images_favicon", "image/png" );
     } elsif ( $path eq '/favicon.ico' ) {
-        $self->direct_to_template("images_favicon","image/png");
+        $self->direct_to_template( "images_favicon", "image/png" );
     } elsif ( $path eq '/static/xml/opensearch.xml' ) {
-        $self->direct_to_template(
-            "opensearch",
+        $self->direct_to_template( "opensearch",
             "application/opensearchdescription+xml",
         );
     } else {
@@ -645,9 +644,9 @@ sub direct_to_template {
     my $mime     = shift;
 
     $self->send_http_header(
-        200, 
+        200,
         -expires => '+1d',
-        ($mime ? (-type => $mime) : ()),
+        ( $mime ? ( -type => $mime ) : () ),
     );
 
     print Template::Declare->show($template);

@@ -308,8 +308,8 @@ private template 'authorinfo' => sub {
         }
         li {
             a {
-                attr {
-                    href => "http://cpantesters.perl.org/author/$pauseid.html" };
+                attr { href =>
+                        "http://cpantesters.perl.org/author/$pauseid.html" };
                 'CPANTesters';
             };
         }

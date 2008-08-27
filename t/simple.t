@@ -13,7 +13,8 @@ use CPAN::Mini::Webserver;
 my $server = setup_server();
 plan tests => 47;
 
-my $name = ($server->author_type eq 'Whois')
+my $name
+    = ( $server->author_type eq 'Whois' )
     ? "L\e{e9}on Brocard"
     : 'Leon Brocard';
 
