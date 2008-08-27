@@ -15,7 +15,7 @@ plan tests => 47;
 
 my $name
     = ( $server->author_type eq 'Whois' )
-    ? "L\e{e9}on Brocard"
+    ? "L\x{e9}on Brocard"
     : 'Leon Brocard';
 
 my $html;
