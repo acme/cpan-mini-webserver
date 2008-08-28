@@ -1,5 +1,6 @@
 package CPAN::Mini::Webserver;
 use App::Cache;
+use Archive::Peek;
 use CPAN::Mini::App;
 use CPAN::Mini::Webserver::Index;
 use CPAN::Mini::Webserver::Templates;
@@ -16,7 +17,6 @@ use Pod::Simple::HTML;
 use Path::Class;
 use PPI;
 use PPI::HTML;
-use String::ShellQuote qw(shell_quote);
 use Template::Declare;
 
 Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
@@ -50,22 +50,8 @@ sub get_file_from_tarball {
 
     my $file
         = file( $self->directory, 'authors', 'id', $distribution->prefix );
-
-    die "unknown distribution format $file"
-        unless ( $file =~ /\.(?:tar\.gz|tgz)$/ );
-
-    my $contents;
-    if ( eval { require Archive::Tar; 1 } ) {
-        my $ar = Archive::Tar->new("$file");
-        $contents = $ar->get_content($filename);
-    } else {
-
-        # Use the system built-in tar (hopefully)
-        # This one hopefully understands -z
-        my $q_file     = shell_quote $file;
-        my $q_filename = shell_quote $filename;
-        $contents = `tar fzxO $q_file $q_filename`;
-    }
+    my $peek = Archive::Peek->new( filename => $file );
+    my $contents = $peek->file($filename);
     return $contents;
 }
 
@@ -621,22 +607,9 @@ sub list_files {
     my ( $self, $distribution ) = @_;
     my $file
         = file( $self->directory, 'authors', 'id', $distribution->prefix );
-    my @filenames;
-
-    if ( $file =~ /\.(?:tar\.gz|tgz)$/ ) {
-
-        # warn "tar fzt $file";
-        if ( eval { require Archive::Tar; 1 } ) {
-            my $ar = Archive::Tar->new("$file");
-            @filenames = sort $ar->list_files();
-        } else {
-            @filenames = sort `tar fzt $file`;
-            chomp @filenames;
-        }
-        @filenames = grep { $_ !~ m{/$} } @filenames;
-    } else {
-        die "Unknown distribution format $file";
-    }
+    my $peek = Archive::Peek->new( filename => $file );
+    my @filenames = $peek->files;
+    return @filenames;
 }
 
 sub direct_to_template {

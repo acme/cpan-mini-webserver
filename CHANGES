@@ -4,8 +4,6 @@ Revision history for Perl module CPAN::Mini::Webserver:
      - drop the header font size a little
      - refactored out a bunch of methods, turned into calls to 
        direct_to_template (patch by markf)
-     - quote any arguments passed to tar, thus not allowing peeps
-       to 0wn3rz our box (patch by markf)
      - remove useless commented out code (patch by markf)
      - correct out of date comment (patch by markf)
      - refactored the skipping into the WebserverTester, avoided 
@@ -15,6 +13,9 @@ Revision history for Perl module CPAN::Mini::Webserver:
        and Build.PL marked up as perl, not viewed as pod (patch
        by markf)
      - unbreak bonjour publishing (patch by miyagawa)
+     - move the archive code into Archive::Peek and require it, with
+       the bonus of being able to explore distributions which are 
+       packaged as .zip files
 
 0.40 Fri Aug 22 09:24:54 BST 2008
      - improve the test suite (patch by markf)
