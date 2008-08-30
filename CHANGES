@@ -1,5 +1,9 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
+0.42
+     - add a documentation section to the distribution page
+       (patch by tokuhirom)
+
 0.41 Thu Aug 28 15:39:02 BST 2008
      - drop the header font size a little
      - refactored out a bunch of methods, turned into calls to 
