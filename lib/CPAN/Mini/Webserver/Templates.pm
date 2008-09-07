@@ -605,12 +605,15 @@ template 'distribution' => sub {
                             push @other, $_;
                         }
                     }
-                    show( 'filelist', $pauseid, $distvname, 'Code', \@code );
+                    show( 'filelist', $pauseid, $distvname, 'Code', \@code )
+                        if @code;
                     show( 'filelist', $pauseid, $distvname, 'Documentation',
-                        \@doc );
-                    show( 'filelist', $pauseid, $distvname, 'Tests', \@test );
-                    show( 'filelist', $pauseid, $distvname, 'Other',
-                        \@other );
+                        \@doc )
+                        if @doc;
+                    show( 'filelist', $pauseid, $distvname, 'Tests', \@test )
+                        if @test;
+                    show( 'filelist', $pauseid, $distvname, 'Other', \@other )
+                        if @other;
 
                    #                    foreach my $filename (@filenames) {
                    #                        show(
