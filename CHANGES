@@ -1,5 +1,8 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
+0.43
+     - add an abstract to the Makefile.PL
+
 0.42 Sun Sep  7 09:31:44 BST 2008
      - add a documentation section to the distribution page
        (patch by tokuhirom)

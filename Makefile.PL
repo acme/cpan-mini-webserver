@@ -5,6 +5,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME         => 'CPAN::Mini::Webserver',
     VERSION_FROM => 'lib/CPAN/Mini/Webserver.pm',
+    ABSTRACT     => 'Search and browse Mini CPAN',
     AUTHOR       => 'Leon Brocard <acme@astray.com>',
     LICENSE      => 'perl',
     PREREQ_PM    => {
