@@ -1,6 +1,6 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
-0.43
+0.43 Thu Sep 18 17:14:50 BST 2008
      - add an abstract to the Makefile.PL
      - add a human-readable license
      - make the Makefile.PL non-executable
