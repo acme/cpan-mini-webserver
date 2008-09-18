@@ -662,5 +662,7 @@ Leon Brocard <acme@astray.com>
 
 Copyright (C) 2008, Leon Brocard.
 
+=head1 LICENSE
+
 This module is free software; you can redistribute it or 
 modify it under the same terms as Perl itself.
