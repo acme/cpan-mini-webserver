@@ -4,6 +4,7 @@ lib/CPAN/Mini/Webserver.pm
 lib/CPAN/Mini/Webserver/Index.pm
 lib/CPAN/Mini/Webserver/Templates.pm
 lib/CPAN/Mini/Webserver/Templates/CSS.pm
+lib/CPAN/Mini/Webserver/Templates/Images.pm
 Makefile.PL
 MANIFEST			This list of files
 README

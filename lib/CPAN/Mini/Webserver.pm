@@ -5,6 +5,7 @@ use CPAN::Mini::App;
 use CPAN::Mini::Webserver::Index;
 use CPAN::Mini::Webserver::Templates;
 use CPAN::Mini::Webserver::Templates::CSS;
+use CPAN::Mini::Webserver::Templates::Images;
 use File::Spec::Functions qw(canonpath);
 use File::Type;
 use List::MoreUtils qw(uniq);
@@ -24,6 +25,7 @@ Template::Declare->init(
     roots => [
         'CPAN::Mini::Webserver::Templates',
         'CPAN::Mini::Webserver::Templates::CSS',
+        'CPAN::Mini::Webserver::Templates::Images',
     ]
 );
 
