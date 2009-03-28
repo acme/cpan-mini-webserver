@@ -4,6 +4,7 @@ use Archive::Peek;
 use CPAN::Mini::App;
 use CPAN::Mini::Webserver::Index;
 use CPAN::Mini::Webserver::Templates;
+use CPAN::Mini::Webserver::Templates::CSS;
 use File::Spec::Functions qw(canonpath);
 use File::Type;
 use List::MoreUtils qw(uniq);
@@ -22,7 +23,7 @@ use Template::Declare;
 Template::Declare->init(
     roots => [
         'CPAN::Mini::Webserver::Templates',
-        'CPAN::Mini::Webserver::Templates::CSS'
+        'CPAN::Mini::Webserver::Templates::CSS',
     ]
 );
 
