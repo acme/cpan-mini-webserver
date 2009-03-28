@@ -19,7 +19,12 @@ use PPI;
 use PPI::HTML;
 use Template::Declare;
 
-Template::Declare->init( roots => ['CPAN::Mini::Webserver::Templates'] );
+Template::Declare->init(
+    roots => [
+        'CPAN::Mini::Webserver::Templates',
+        'CPAN::Mini::Webserver::Templates::CSS'
+    ]
+);
 
 if ( eval { require HTTP::Server::Simple::Bonjour } ) {
     extends 'HTTP::Server::Simple::Bonjour', 'HTTP::Server::Simple::CGI';
