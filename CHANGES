@@ -1,6 +1,6 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
-0.44
+0.44 Sat Mar 28 11:19:48 GMT 2009
      - autogenerate the CSS and Images template files
      - use Text::Unidecode so that searching for Leon Brocard works
      - fix bug to do with "buffy -test" not showing modules
