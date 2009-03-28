@@ -6,6 +6,7 @@ use CPAN::Mini::Webserver::Index;
 use CPAN::Mini::Webserver::Templates;
 use CPAN::Mini::Webserver::Templates::CSS;
 use CPAN::Mini::Webserver::Templates::Images;
+use Encode;
 use File::Spec::Functions qw(canonpath);
 use File::Type;
 use List::MoreUtils qw(uniq);
@@ -263,6 +264,7 @@ sub redirect {
 sub search_page {
     my $self = shift;
     my $q    = $self->cgi->param('q');
+    Encode::_utf8_on($q);    # we know that we have sent utf-8
 
     my ( $authors, $dists, $packages ) = $self->_do_search($q);
     $self->send_http_header( 200, -charset => 'utf-8' );
