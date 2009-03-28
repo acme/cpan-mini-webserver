@@ -285,16 +285,16 @@ sub _do_search {
     my $au_type = $self->author_type;
     my ( @authors, @distributions, @packages );
 
-    if ( $q !~ /(?:::|-)/ ) {
+    if ( $q !~ /\w(?:::|-)\w/ ) {
         @authors = uniq grep { ref($_) eq "Parse::CPAN::${au_type}::Author" }
             @results;
     }
-    if ( $q !~ /::/ ) {
+    if ( $q !~ /\w::\w/ ) {
         @distributions
             = uniq grep { ref($_) eq 'Parse::CPAN::Packages::Distribution' }
             @results;
     }
-    if ( $q !~ /-/ ) {
+    if ( $q !~ /\w-\w/ ) {
         @packages = uniq grep { ref($_) eq 'Parse::CPAN::Packages::Package' }
             @results;
     }
