@@ -7,8 +7,6 @@ Reload indexes if the indexes have updated
 
 Maybe use LWP::Online and gravatar? 
 
-Use Text::Unidecode so that searching for Leon Brocard works
-
 buffy -test should show modules too
 
 Ideas from Max Maischein:

@@ -3,6 +3,7 @@ use Moose;
 use List::MoreUtils qw(uniq);
 use Search::QueryParser;
 use String::CamelCase qw(wordsplit);
+use Text::Unidecode;
 
 has 'index' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 
@@ -18,14 +19,14 @@ sub create_index {
     my ( $self, $parse_cpan_authors, $parse_cpan_packages ) = @_;
 
     foreach my $author ( $parse_cpan_authors->authors ) {
-        my @words = split ' ', lc $author->name;
+        my @words = split ' ', unidecode lc $author->name;
         push @words, lc $author->pauseid;
         $self->add( $author, \@words );
     }
 
     foreach my $distribution ( $parse_cpan_packages->latest_distributions ) {
         my @words;
-        foreach my $word ( split '-', $distribution->dist ) {
+        foreach my $word ( split '-', unidecode $distribution->dist ) {
             push @words, $word;
             push @words, wordsplit $word;
         }
@@ -36,7 +37,7 @@ sub create_index {
 
     foreach my $package ( $parse_cpan_packages->packages ) {
         my @words;
-        foreach my $word ( split '::', $package->package ) {
+        foreach my $word ( split '::', unidecode $package->package ) {
             push @words, $word;
             push @words, wordsplit $word;
         }
@@ -61,7 +62,7 @@ sub search {
 
     foreach my $part ( @{ $query->{'+'} } ) {
         my $value = $part->{value};
-        my @words = split /(?:\:\:| |-)/, lc $value;
+        my @words = split /(?:\:\:| |-)/, unidecode lc $value;
         foreach my $word (@words) {
             my @word_results = @{ $index->{$word} || [] };
             if (@results) {
@@ -89,7 +90,7 @@ sub search_word {
     my ( $self, $word ) = @_;
     my $index = $self->index;
     my @results;
-    my @words = split /(?:\:\:| |-)/, lc $word;
+    my @words = split /(?:\:\:| |-)/, unidecode lc $word;
     foreach my $word (@words) {
         next unless exists $index->{$word};
         push @results, @{ $index->{$word} };

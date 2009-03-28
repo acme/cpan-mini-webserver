@@ -33,6 +33,7 @@ WriteMakefile(
         'String::CamelCase'        => '0',
         'Template::Declare'        => '0.29',
         'Test::More'               => '0',
+        'Text::Unidecode'          => '0',
     },
     'EXE_FILES' => ['bin/minicpan_webserver'],
 );

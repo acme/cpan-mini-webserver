@@ -2,6 +2,7 @@ Revision history for Perl module CPAN::Mini::Webserver:
 
 0.44
      - autogenerate the CSS and Images template files
+     - use Text::Unidecode so that searching for Leon Brocard works
 
 0.43 Thu Sep 18 17:14:50 BST 2008
      - add an abstract to the Makefile.PL
