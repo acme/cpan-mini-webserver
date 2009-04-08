@@ -413,7 +413,7 @@ private template 'metadata' => sub {
     div {
         attr { class => 'metadata' };
         dl {
-            foreach my $key ( qw(abstract license), 'release date' ) {
+            foreach my $key ( qw(abstract license repository), 'release date' ) {
                 if ( defined $meta->{$key} ) {
                     dt { ucfirst $key; };
                     if ( defined $meta->{resources}->{$key} ) {
