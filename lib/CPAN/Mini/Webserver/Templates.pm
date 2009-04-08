@@ -198,7 +198,9 @@ private template 'search_results' => sub {
 };
 
 template 'index' => sub {
-    my $self = shift;
+    my ( $self, $arguments ) = @_;
+    my $parse_cpan_authors = $arguments->{parse_cpan_authors};
+    my $recents            = $arguments->{recents};
 
     html {
         attr { xmlns => 'http://www.w3.org/1999/xhtml' };
@@ -212,6 +214,31 @@ template 'index' => sub {
                     show('searchbar');
                     h1 {'Index'};
                     p {'Welcome to CPAN::Mini::Webserver. Start searching!'};
+                    if ($recents) {
+                        h2 {'Recent distributions'};
+                        ul {
+                            foreach my $recent (@$recents) {
+                                my $cpanid    = $recent->cpanid;
+                                my $distvname = $recent->distvname;
+                                next unless $distvname;
+                                li {
+                                    a {
+                                        attr {    href => '/~'
+                                                . lc($cpanid) . '/'
+                                                . $distvname };
+                                        $distvname;
+                                    };
+                                    outs ' by ';
+                                    show(
+                                        'author_link',
+                                        $parse_cpan_authors->author(
+                                            $cpanid
+                                        )
+                                    );
+                                }
+                            }
+                        };
+                    }
                 };
                 show('footer');
             };
@@ -414,7 +441,9 @@ private template 'metadata' => sub {
     div {
         attr { class => 'metadata' };
         dl {
-            foreach my $key ( qw(abstract license repository), 'release date' ) {
+            foreach
+                my $key ( qw(abstract license repository), 'release date' )
+            {
                 if ( defined $meta->{$key} ) {
                     dt { ucfirst $key; };
                     if ( defined $meta->{resources}->{$key} ) {

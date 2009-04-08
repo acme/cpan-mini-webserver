@@ -187,10 +187,10 @@ sub _handle_request {
     $self->distvname($distvname);
     $self->filename($filename);
 
-    #warn "$raw / $download / $pauseid / $distvname / $filename";
+    # warn "$path / $raw / $download / $pauseid / $distvname / $filename";
 
     if ( $path eq '/' ) {
-        $self->direct_to_template("index");
+        $self->index_page();
     } elsif ( $path eq '/search/' ) {
         $self->search_page();
     } elsif ( $raw && $pauseid && $distvname && $filename ) {
@@ -234,6 +234,31 @@ sub _handle_request {
         $self->not_found_page($q);
     }
 
+}
+
+sub index_page {
+    my $self = shift;
+
+    my $recent_filename = file( $self->directory, 'RECENT' );
+    my @recent;
+    if ( -f $recent_filename ) {
+        my $fh = IO::File->new($recent_filename) || die $!;
+        while ( my $line = <$fh> ) {
+            chomp $line;
+            next unless $line =~ m{authors/id/};
+
+            my $d = CPAN::DistnameInfo->new($line);
+
+            push @recent, $d;
+        }
+    }
+    $self->send_http_header( 200, -charset => 'utf-8' );
+    print Template::Declare->show(
+        'index',
+        {   recents            => \@recent,
+            parse_cpan_authors => $self->parse_cpan_authors,
+        }
+    );
 }
 
 sub not_found_page {
