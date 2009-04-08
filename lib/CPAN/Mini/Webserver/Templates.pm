@@ -121,7 +121,7 @@ private template 'searchbar' => sub {
     table {
         row {
             form {
-                attr { method => 'get', action => '/search/' };
+                attr { name => 'f', method => 'get', action => '/search/' };
                 cell {
                     attr { class => 'searchbar' };
                     outs_raw
@@ -208,6 +208,7 @@ template 'index' => sub {
                 attr { class => 'span-24' };
                 show( 'header', 'Index' );
                 body {
+                    attr { onload => 'document.f.q.focus()' };
                     show('searchbar');
                     h1 {'Index'};
                     p {'Welcome to CPAN::Mini::Webserver. Start searching!'};
