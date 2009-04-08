@@ -1,5 +1,10 @@
 Revision history for Perl module CPAN::Mini::Webserver:
 
+0.45 Wed Apr  8 14:54:22 BST 2009
+     - show recent changes with modern CPAN::Mini
+     - auto focus search box on homepage (patch by mintywalker)
+     - display 'repository' metadata (patch by tokuhirom)
+
 0.44 Sat Mar 28 11:19:48 GMT 2009
      - autogenerate the CSS and Images template files
      - use Text::Unidecode so that searching for Leon Brocard works
