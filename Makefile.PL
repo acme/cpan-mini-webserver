@@ -26,7 +26,6 @@ WriteMakefile(
         'Parse::CPAN::Packages'    => '2.28',
         'Path::Class'              => '0',
         'Pod::Simple::HTML'        => '0',
-        'Perl6::Say'               => '0',
         'PPI'                      => '0',
         'PPI::HTML'                => '0',
         'Search::QueryParser'      => '0',
